@@ -1,0 +1,2591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Compressor Pro — Compress, Resize, Crop & Watermark</title>
+    <style>
+        :root {
+            --bg: #f0f2f5;
+            --bg-secondary: #e8eaef;
+            --surface: rgba(255, 255, 255, 0.72);
+            --surface-hover: rgba(255, 255, 255, 0.88);
+            --text: #1a1d23;
+            --text-secondary: #555a65;
+            --border: rgba(0, 0, 0, 0.08);
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
+            --accent: #4f6ef7;
+            --accent-hover: #3b54e0;
+            --accent-light: #eef1ff;
+            --danger: #e05555;
+            --danger-hover: #c74444;
+            --success: #2ea173;
+            --warning: #e8a840;
+            --radius: 16px;
+            --radius-sm: 10px;
+            --radius-xs: 6px;
+            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --glass-blur: 18px;
+            --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            --card-gap: 16px;
+        }
+
+        .dark {
+            --bg: #111318;
+            --bg-secondary: #1a1d25;
+            --surface: rgba(30, 33, 42, 0.78);
+            --surface-hover: rgba(38, 41, 52, 0.9);
+            --text: #e8eaef;
+            --text-secondary: #a0a5b4;
+            --border: rgba(255, 255, 255, 0.08);
+            --shadow: 0 4px 28px rgba(0, 0, 0, 0.35);
+            --accent: #6b8aff;
+            --accent-hover: #5270e8;
+            --accent-light: #1e2440;
+            --danger: #f06060;
+            --danger-hover: #d94a4a;
+            --success: #3cb88a;
+            --warning: #eebb44;
+        }
+
+        * {
+            box-sizing: border-box;
+            max-width: 100%;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            transition: background var(--transition), color var(--transition);
+            min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .app-container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 18px 16px 40px;
+        }
+
+        /* HEADER */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding: 18px 20px;
+            background: var(--surface);
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transition: background var(--transition), border var(--transition), box-shadow var(--transition);
+        }
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .header-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            line-height: 1.2;
+        }
+        .header .subtitle {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+        .theme-toggle {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            cursor: pointer;
+            font-size: 20px;
+            display: none ! important;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition);
+            color: var(--text);
+            flex-shrink: 0;
+            box-shadow: var(--shadow);
+        }
+        .theme-toggle:hover {
+            background: var(--surface-hover);
+            transform: scale(1.05);
+        }
+        .theme-toggle:focus-visible {
+            outline: 3px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        /* UPLOAD ZONE */
+        .upload-zone {
+            border: 2.5px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 36px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all var(--transition);
+            background: var(--surface);
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            box-shadow: var(--shadow);
+            margin-bottom: 18px;
+            position: relative;
+        }
+        .upload-zone:hover,
+        .upload-zone.drag-over {
+            border-color: var(--accent);
+            background: var(--accent-light);
+            transform: translateY(-1px);
+        }
+        .upload-zone:focus-visible {
+            outline: 3px solid var(--accent);
+            outline-offset: 2px;
+        }
+        .upload-zone .upload-icon {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+        .upload-zone p {
+            margin: 4px 0;
+            font-weight: 500;
+        }
+        .upload-zone .upload-hint {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        .upload-zone input {
+            display: none;
+        }
+
+        /* CONTROLS PANEL */
+        .controls-panel {
+            background: var(--surface);
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 18px 20px;
+            margin-bottom: 18px;
+            transition: all var(--transition);
+        }
+        .controls-panel h3 {
+            margin: 0 0 14px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: -0.2px;
+        }
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            align-items: end;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .control-group label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .control-group input[type="range"] {
+            width: 100%;
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+        .control-group select,
+        .control-group input[type="number"],
+        .control-group input[type="color"],
+        .control-group input[type="text"] {
+            padding: 9px 12px;
+            border-radius: var(--radius-xs);
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 0.88rem;
+            transition: all var(--transition);
+            width: 100%;
+        }
+        .control-group select:focus,
+        .control-group input:focus {
+            outline: 2px solid var(--accent);
+            outline-offset: 1px;
+            border-color: var(--accent);
+        }
+        .quality-display {
+            font-weight: 700;
+            color: var(--accent);
+            font-size: 0.9rem;
+            text-align: center;
+            min-width: 40px;
+        }
+        .inline-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .custom-resize-fields {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .custom-resize-fields input {
+            width: 80px;
+            min-width: 60px;
+        }
+        .custom-resize-fields span {
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.82rem;
+            cursor: pointer;
+            user-select: none;
+            font-weight: 500;
+        }
+        .checkbox-label input {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--accent);
+        }
+
+        /* WATERMARK SECTION */
+        .watermark-section {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 12px;
+            align-items: end;
+        }
+        .watermark-section h4 {
+            grid-column: 1/-1;
+            margin: 0;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .wm-mode-tabs {
+            display: flex;
+            gap: 0;
+            grid-column: 1/-1;
+        }
+        .wm-mode-tab {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            background: var(--bg-secondary);
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--text);
+            transition: all var(--transition);
+            flex: 1;
+            text-align: center;
+            border-radius: 0;
+        }
+        .wm-mode-tab:first-child {
+            border-radius: var(--radius-xs) 0 0 var(--radius-xs);
+        }
+        .wm-mode-tab:last-child {
+            border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
+        }
+        .wm-mode-tab.active {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+            font-weight: 600;
+        }
+        .wm-mode-tab:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 1px;
+            z-index: 1;
+        }
+
+        /* ACTION BUTTONS */
+        .action-bar {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .btn {
+            padding: 11px 20px;
+            border-radius: var(--radius-sm);
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.88rem;
+            font-family: var(--font);
+            transition: all var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            white-space: nowrap;
+            letter-spacing: -0.2px;
+        }
+        .btn:focus-visible {
+            outline: 3px solid var(--accent);
+            outline-offset: 2px;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            box-shadow: 0 2px 10px rgba(79, 110, 247, 0.3);
+        }
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 18px rgba(79, 110, 247, 0.4);
+        }
+        .btn-danger {
+            background: var(--danger);
+            color: #fff;
+        }
+        .btn-danger:hover {
+            background: var(--danger-hover);
+            transform: translateY(-1px);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1.5px solid var(--border);
+            color: var(--text);
+        }
+        .btn-outline:hover {
+            background: var(--surface-hover);
+            border-color: var(--accent);
+        }
+        .btn-sm {
+            padding: 7px 13px;
+            font-size: 0.78rem;
+            border-radius: var(--radius-xs);
+        }
+        .btn-xs {
+            padding: 5px 10px;
+            font-size: 0.72rem;
+            border-radius: var(--radius-xs);
+        }
+        .btn:disabled {
+            opacity: 0.45;
+            pointer-events: none;
+            cursor: not-allowed;
+        }
+
+        /* IMAGE CARDS GRID */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: var(--card-gap);
+            margin-bottom: 18px;
+        }
+        .card {
+            background: var(--surface);
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: all var(--transition);
+            display: flex;
+            flex-direction: column;
+        }
+        .card:hover {
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+        }
+        .card-preview-row {
+            display: flex;
+            gap: 6px;
+            padding: 12px;
+            background: var(--bg-secondary);
+            min-height: 130px;
+            align-items: center;
+            justify-content: center;
+        }
+        .card-preview-row .preview-box {
+            flex: 1;
+            text-align: center;
+            min-width: 0;
+        }
+        .card-preview-row .preview-box img {
+            max-height: 140px;
+            max-width: 100%;
+            border-radius: var(--radius-xs);
+            object-fit: contain;
+            background: #0000000a;
+            display: block;
+            margin: 0 auto;
+        }
+        .dark .card-preview-row .preview-box img {
+            background: #ffffff08;
+        }
+        .preview-label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        .card-info {
+            padding: 10px 14px;
+            font-size: 0.78rem;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            border-top: 1px solid var(--border);
+        }
+        .card-info .filename {
+            font-weight: 600;
+            font-size: 0.85rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .card-info .stat-row {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-secondary);
+            font-size: 0.73rem;
+        }
+        .card-info .stat-row strong {
+            color: var(--text);
+        }
+        .card-actions {
+            display: flex;
+            gap: 6px;
+            padding: 8px 14px 12px;
+            flex-wrap: wrap;
+            border-top: 1px solid var(--border);
+        }
+
+        /* STATISTICS PANEL */
+        .stats-panel {
+            background: var(--surface);
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 16px 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+            justify-content: space-around;
+            transition: all var(--transition);
+        }
+        .stat-item {
+            text-align: center;
+            flex: 1 1 100px;
+            min-width: 80px;
+        }
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: -0.5px;
+        }
+        .stat-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            animation: fadeIn 0.2s ease;
+        }
+        .modal-overlay.hidden {
+            display: none;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        .modal {
+            background: var(--bg);
+            border-radius: var(--radius);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            max-width: 95vw;
+            max-height: 90vh;
+            width: 700px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: slideUp 0.25s ease;
+        }
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: var(--bg-secondary);
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text);
+            transition: all var(--transition);
+        }
+        .modal-close:hover {
+            background: var(--danger);
+            color: #fff;
+        }
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+            position: relative;
+            min-height: 300px;
+        }
+        .crop-canvas-container {
+            position: relative;
+            display: inline-block;
+            cursor: crosshair;
+            max-width: 100%;
+            max-height: 55vh;
+            overflow: hidden;
+            border-radius: var(--radius-xs);
+            box-shadow: 0 0 0 2px var(--border);
+        }
+        .crop-canvas-container canvas {
+            display: block;
+            max-width: 100%;
+            max-height: 55vh;
+            object-fit: contain;
+        }
+        .crop-overlay {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+        .crop-mask {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+        }
+        .crop-rect {
+            position: absolute;
+            border: 2px dashed #fff;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+            pointer-events: all;
+            cursor: move;
+        }
+        .crop-handle {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            background: #fff;
+            border: 2px solid #333;
+            border-radius: 3px;
+            pointer-events: all;
+            z-index: 2;
+        }
+        .crop-handle.nw {
+            top: -7px;
+            left: -7px;
+            cursor: nw-resize;
+        }
+        .crop-handle.ne {
+            top: -7px;
+            right: -7px;
+            cursor: ne-resize;
+        }
+        .crop-handle.sw {
+            bottom: -7px;
+            left: -7px;
+            cursor: sw-resize;
+        }
+        .crop-handle.se {
+            bottom: -7px;
+            right: -7px;
+            cursor: se-resize;
+        }
+        .crop-handle.n {
+            top: -7px;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: n-resize;
+        }
+        .crop-handle.s {
+            bottom: -7px;
+            left: 50%;
+            transform: translateX(-50%);
+            cursor: s-resize;
+        }
+        .crop-handle.w {
+            left: -7px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: w-resize;
+        }
+        .crop-handle.e {
+            right: -7px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: e-resize;
+        }
+        .modal-footer {
+            display: flex;
+            gap: 8px;
+            padding: 12px 18px;
+            border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        /* TOAST */
+        .toast-container {
+            position: fixed;
+            top: 18px;
+            right: 18px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+        .toast {
+            background: #1a1d23;
+            color: #fff;
+            padding: 12px 18px;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            font-size: 0.85rem;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+            animation: toastIn 0.3s ease, toastOut 0.3s ease 2.5s forwards;
+            pointer-events: all;
+            max-width: 380px;
+        }
+        .toast.error {
+            border-left: 4px solid var(--danger);
+        }
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+        .toast.info {
+            border-left: 4px solid var(--accent);
+        }
+        @keyframes toastIn {
+            from {
+                transform: translateX(120%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes toastOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+
+        /* CONFIRM DIALOG */
+        .confirm-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: 1500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            animation: fadeIn 0.2s ease;
+        }
+        .confirm-overlay.hidden {
+            display: none;
+        }
+        .confirm-dialog {
+            background: var(--bg);
+            border-radius: var(--radius);
+            padding: 22px 20px;
+            box-shadow: 0 16px 50px rgba(0, 0, 0, 0.4);
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            animation: slideUp 0.25s ease;
+        }
+        .confirm-dialog h3 {
+            margin: 0 0 8px;
+            font-size: 1.1rem;
+        }
+        .confirm-dialog p {
+            color: var(--text-secondary);
+            margin: 0 0 18px;
+            font-size: 0.9rem;
+        }
+        .confirm-dialog .btn-row {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        /* PROGRESS BAR */
+        .progress-bar-wrap {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            height: 8px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 20px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        .progress-text {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .app-container {
+                padding: 10px 8px 30px;
+            }
+            .header {
+                padding: 12px 14px;
+                gap: 8px;
+            }
+            .header h1 {
+                font-size: 1.1rem;
+            }
+            .header-icon {
+                width: 34px;
+                height: 34px;
+                font-size: 18px;
+                border-radius: 10px;
+            }
+            .controls-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            .watermark-section {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            .cards-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            .card-preview-row {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .card-preview-row .preview-box img {
+                max-height: 100px;
+            }
+            .btn {
+                padding: 9px 15px;
+                font-size: 0.82rem;
+            }
+            .modal {
+                width: 98vw;
+                max-width: 98vw;
+                max-height: 95vh;
+            }
+            .crop-canvas-container {
+                max-height: 40vh;
+            }
+            .crop-canvas-container canvas {
+                max-height: 40vh;
+            }
+            .stats-panel {
+                gap: 10px;
+                padding: 12px 14px;
+            }
+            .stat-value {
+                font-size: 1.1rem;
+            }
+            .action-bar {
+                gap: 6px;
+            }
+            .toast-container {
+                right: 6px;
+                left: 6px;
+                top: 8px;
+            }
+            .toast {
+                max-width: 100%;
+                font-size: 0.78rem;
+            }
+        }
+        @media (max-width: 400px) {
+            .controls-grid {
+                grid-template-columns: 1fr;
+            }
+            .watermark-section {
+                grid-template-columns: 1fr;
+            }
+            .card-actions {
+                flex-direction: column;
+                gap: 5px;
+            }
+            .card-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .theme-toggle {
+                align-self: flex-end;
+                margin-top: -40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container" id="appContainer">
+        <!-- HEADER -->
+        <header class="header" role="banner">
+            <div class="header-brand">
+                <div class="header-icon" aria-hidden="true">🖼</div>
+                <div>
+                    <h1>Image Compressor Pro</h1>
+                    <p class="subtitle">Compress, Resize, Crop & Watermark Images</p>
+                </div>
+            </div>
+            <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark/light mode" title="Toggle theme" type="button">🌙</button>
+        </header>
+
+        <!-- UPLOAD ZONE -->
+        <div class="upload-zone" id="uploadZone" tabindex="0" role="button" aria-label="Upload images - drag and drop or click to browse">
+            <div class="upload-icon" aria-hidden="true">📁</div>
+            <p><strong>Drag & Drop images here</strong></p>
+            <p class="upload-hint">or click to browse · JPEG, PNG, WebP, GIF, SVG · Max 20 MB each</p>
+            <input type="file" id="fileInput" multiple accept="image/jpeg,image/png,image/webp,image/gif,image/svg+xml" aria-hidden="true">
+        </div>
+
+        <!-- CONTROLS PANEL -->
+        <div class="controls-panel" id="controlsPanel" role="region" aria-label="Compression controls">
+            <h3>⚙️ Compression Settings</h3>
+            <div class="controls-grid">
+                <div class="control-group">
+                    <label for="qualitySlider">Quality: <span class="quality-display" id="qualityDisplay">80%</span></label>
+                    <input type="range" id="qualitySlider" min="1" max="100" value="80" aria-label="Compression quality">
+                </div>
+                <div class="control-group">
+                    <label for="formatSelect">Output Format</label>
+                    <select id="formatSelect" aria-label="Output format">
+                        <option value="auto">Auto (Original)</option>
+                        <option value="image/jpeg">JPEG</option>
+                        <option value="image/png">PNG</option>
+                        <option value="image/webp">WebP</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="resizeSelect">Resize</label>
+                    <select id="resizeSelect" aria-label="Resize preset">
+                        <option value="none">None (Original)</option>
+                        <option value="1920x1080">1920×1080</option>
+                        <option value="1280x720">1280×720</option>
+                        <option value="800x600">800×600</option>
+                        <option value="custom">Custom…</option>
+                    </select>
+                </div>
+                <div class="control-group custom-resize-fields" id="customResizeFields" style="display:none;">
+                    <input type="number" id="customWidth" placeholder="Width" min="1" max="10000" value="" aria-label="Custom width in pixels">
+                    <span>×</span>
+                    <input type="number" id="customHeight" placeholder="Height" min="1" max="10000" value="" aria-label="Custom height in pixels">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="preserveAspect" checked aria-label="Preserve aspect ratio">
+                        <span>Lock ratio</span>
+                    </label>
+                </div>
+            </div>
+            <!-- WATERMARK -->
+            <div class="watermark-section" id="watermarkSection" role="region" aria-label="Watermark settings">
+                <h4>💧 Watermark</h4>
+                <div class="wm-mode-tabs" role="tablist">
+                    <button class="wm-mode-tab active" data-wm-mode="text" role="tab" aria-selected="true" type="button">Text</button>
+                    <button class="wm-mode-tab" data-wm-mode="image" role="tab" aria-selected="false" type="button">Image Logo</button>
+                    <button class="wm-mode-tab" data-wm-mode="none" role="tab" aria-selected="false" type="button">None</button>
+                </div>
+                <div id="wmTextFields">
+                    <div class="control-group">
+                        <label for="wmText">Watermark Text</label>
+                        <input type="text" id="wmText" value="© Watermark" maxlength="100" aria-label="Watermark text">
+                    </div>
+                    <div class="control-group">
+                        <label for="wmFont">Font</label>
+                        <select id="wmFont" aria-label="Font family">
+                            <option value="Arial">Arial</option>
+                            <option value="Helvetica">Helvetica</option>
+                            <option value="Times New Roman">Times New Roman</option>
+                            <option value="Georgia">Georgia</option>
+                            <option value="Verdana">Verdana</option>
+                            <option value="Courier New">Courier New</option>
+                            <option value="Impact">Impact</option>
+                        </select>
+                    </div>
+                    <div class="inline-row">
+                        <div class="control-group">
+                            <label for="wmFontSize">Size (px)</label>
+                            <input type="number" id="wmFontSize" value="36" min="8" max="300" style="width:70px;" aria-label="Font size">
+                        </div>
+                        <div class="control-group">
+                            <label for="wmColor">Color</label>
+                            <input type="color" id="wmColor" value="#ffffff" aria-label="Watermark color">
+                        </div>
+                        <label class="checkbox-label"><input type="checkbox" id="wmBold" aria-label="Bold"> Bold</label>
+                        <label class="checkbox-label"><input type="checkbox" id="wmItalic" aria-label="Italic"> Italic</label>
+                    </div>
+                </div>
+                <div id="wmImageFields" style="display:none;">
+                    <div class="control-group">
+                        <label for="wmImageUpload">Logo Image</label>
+                        <input type="file" id="wmImageUpload" accept="image/*" aria-label="Upload watermark logo">
+                    </div>
+                </div>
+                <div id="wmCommonFields">
+                    <div class="control-group">
+                        <label for="wmOpacity">Opacity: <span id="wmOpacityVal">80</span>%</label>
+                        <input type="range" id="wmOpacity" min="5" max="100" value="80" aria-label="Watermark opacity">
+                    </div>
+                    <div class="control-group">
+                        <label for="wmRotation">Rotation: <span id="wmRotationVal">0</span>°</label>
+                        <input type="range" id="wmRotation" min="-180" max="180" value="0" aria-label="Watermark rotation">
+                    </div>
+                    <div class="control-group">
+                        <label for="wmPosition">Position</label>
+                        <select id="wmPosition" aria-label="Watermark position">
+                            <option value="center">Center</option>
+                            <option value="top-left">Top Left</option>
+                            <option value="top-right">Top Right</option>
+                            <option value="bottom-left">Bottom Left</option>
+                            <option value="bottom-right">Bottom Right</option>
+                        </select>
+                    </div>
+                    <div class="control-group" id="wmSizeGroup">
+                        <label for="wmSizePercent">Logo Size: <span id="wmSizeVal">25</span>%</label>
+                        <input type="range" id="wmSizePercent" min="5" max="80" value="25" aria-label="Watermark logo size percent">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ACTION BAR -->
+        <div class="action-bar">
+            <button class="btn btn-primary" id="compressAllBtn" type="button">⚡ Compress All</button>
+            <button class="btn btn-danger" id="clearAllBtn" type="button">🗑 Clear All</button>
+            <span class="progress-text" id="progressText" style="display:none;"></span>
+            <div class="progress-bar-wrap" id="progressBarWrap" style="display:none;flex:1;min-width:100px;">
+                <div class="progress-bar-fill" id="progressBarFill"></div>
+            </div>
+        </div>
+
+        <!-- IMAGE CARDS -->
+        <div class="cards-grid" id="cardsGrid" role="list" aria-label="Uploaded images"></div>
+
+        <!-- EMPTY STATE -->
+        <div id="emptyState" style="text-align:center;padding:40px 20px;color:var(--text-secondary);">
+            <p style="font-size:3rem;margin:0;">📷</p>
+            <p style="font-weight:500;">No images uploaded yet</p>
+            <p style="font-size:0.82rem;">Drag & drop images above or click the upload area to get started.</p>
+        </div>
+
+        <!-- STATISTICS PANEL -->
+        <div class="stats-panel" id="statsPanel" role="region" aria-label="Compression statistics">
+            <div class="stat-item"><div class="stat-value" id="statTotalImages">0</div><div class="stat-label">Total Images</div></div>
+            <div class="stat-item"><div class="stat-value" id="statOriginalSize">0 B</div><div class="stat-label">Original Size</div></div>
+            <div class="stat-item"><div class="stat-value" id="statCompressedSize">0 B</div><div class="stat-label">Compressed Size</div></div>
+            <div class="stat-item"><div class="stat-value" id="statSpaceSaved">0 B</div><div class="stat-label">Space Saved</div></div>
+            <div class="stat-item"><div class="stat-value" id="statAvgCompression">0%</div><div class="stat-label">Avg Compression</div></div>
+        </div>
+    </div>
+
+    <!-- CROP MODAL -->
+    <div class="modal-overlay hidden" id="cropModalOverlay" role="dialog" aria-modal="true" aria-label="Crop editor">
+        <div class="modal">
+            <div class="modal-header">
+                <span>✂️ Crop Editor</span>
+                <button class="modal-close" id="cropModalClose" aria-label="Close crop editor" type="button">✕</button>
+            </div>
+            <div class="modal-body" id="cropModalBody">
+                <div class="crop-canvas-container" id="cropCanvasContainer">
+                    <canvas id="cropCanvas"></canvas>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
+                    <button class="btn btn-outline btn-sm crop-preset-btn" data-preset="free" type="button">Free</button>
+                    <button class="btn btn-outline btn-sm crop-preset-btn" data-preset="square" type="button">Square</button>
+                    <button class="btn btn-outline btn-sm crop-preset-btn" data-preset="16:9" type="button">16:9</button>
+                    <button class="btn btn-outline btn-sm crop-preset-btn" data-preset="4:3" type="button">4:3</button>
+                    <button class="btn btn-outline btn-sm crop-preset-btn" data-preset="1:1" type="button">1:1</button>
+                    <button class="btn btn-outline btn-sm" id="cropRotateBtn" type="button">↻ Rotate 90°</button>
+                    <button class="btn btn-outline btn-sm" id="cropFlipHBtn" type="button">↔ Flip H</button>
+                    <button class="btn btn-outline btn-sm" id="cropFlipVBtn" type="button">↕ Flip V</button>
+                    <button class="btn btn-outline btn-sm" id="cropResetBtn" type="button">↺ Reset</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" id="cropCancelBtn" type="button">Cancel</button>
+                <button class="btn btn-primary" id="cropSaveBtn" type="button">✅ Apply Crop</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONFIRM DIALOG -->
+    <div class="confirm-overlay hidden" id="confirmOverlay" role="dialog" aria-modal="true" aria-label="Confirmation">
+        <div class="confirm-dialog">
+            <h3 id="confirmTitle">Clear All Images?</h3>
+            <p id="confirmMsg">This will remove all uploaded images and reset all settings. This action cannot be undone.</p>
+            <div class="btn-row">
+                <button class="btn btn-outline" id="confirmCancelBtn" type="button">Cancel</button>
+                <button class="btn btn-danger" id="confirmOkBtn" type="button">Clear All</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST CONTAINER -->
+    <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+    <script>
+        (function() {
+            // ──────────────────────────── STATE ────────────────────────────
+            const state = {
+                images: [], // { id, file, originalBlob, cropData, processedBlob, processedSize, width, height }
+                quality: 80,
+                format: 'auto',
+                resizeMode: 'none',
+                customWidth: null,
+                customHeight: null,
+                preserveAspect: true,
+                wmMode: 'text', // 'text' | 'image' | 'none'
+                wmText: '© Watermark',
+                wmFont: 'Arial',
+                wmFontSize: 36,
+                wmColor: '#ffffff',
+                wmBold: false,
+                wmItalic: false,
+                wmOpacity: 80,
+                wmRotation: 0,
+                wmPosition: 'center',
+                wmSizePercent: 25,
+                wmImageBlob: null,
+                wmImageDataUrl: null,
+                theme: 'light',
+                processingQueue: [],
+                isProcessing: false,
+                cropState: null, // temp state for crop editor
+            };
+
+            let imageIdCounter = 0;
+            const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
+
+            // ──────────────────────────── DOM REFS ────────────────────────────
+            const $ = (sel) => document.querySelector(sel);
+            const $$ = (sel) => document.querySelectorAll(sel);
+
+            const dom = {
+                appContainer: $('#appContainer'),
+                themeToggle: $('#themeToggle'),
+                uploadZone: $('#uploadZone'),
+                fileInput: $('#fileInput'),
+                qualitySlider: $('#qualitySlider'),
+                qualityDisplay: $('#qualityDisplay'),
+                formatSelect: $('#formatSelect'),
+                resizeSelect: $('#resizeSelect'),
+                customResizeFields: $('#customResizeFields'),
+                customWidth: $('#customWidth'),
+                customHeight: $('#customHeight'),
+                preserveAspect: $('#preserveAspect'),
+                wmModeTabs: $$('.wm-mode-tab'),
+                wmTextFields: $('#wmTextFields'),
+                wmImageFields: $('#wmImageFields'),
+                wmCommonFields: $('#wmCommonFields'),
+                wmText: $('#wmText'),
+                wmFont: $('#wmFont'),
+                wmFontSize: $('#wmFontSize'),
+                wmColor: $('#wmColor'),
+                wmBold: $('#wmBold'),
+                wmItalic: $('#wmItalic'),
+                wmOpacity: $('#wmOpacity'),
+                wmOpacityVal: $('#wmOpacityVal'),
+                wmRotation: $('#wmRotation'),
+                wmRotationVal: $('#wmRotationVal'),
+                wmPosition: $('#wmPosition'),
+                wmSizePercent: $('#wmSizePercent'),
+                wmSizeVal: $('#wmSizeVal'),
+                wmSizeGroup: $('#wmSizeGroup'),
+                wmImageUpload: $('#wmImageUpload'),
+                compressAllBtn: $('#compressAllBtn'),
+                clearAllBtn: $('#clearAllBtn'),
+                progressText: $('#progressText'),
+                progressBarWrap: $('#progressBarWrap'),
+                progressBarFill: $('#progressBarFill'),
+                cardsGrid: $('#cardsGrid'),
+                emptyState: $('#emptyState'),
+                statsPanel: $('#statsPanel'),
+                statTotalImages: $('#statTotalImages'),
+                statOriginalSize: $('#statOriginalSize'),
+                statCompressedSize: $('#statCompressedSize'),
+                statSpaceSaved: $('#statSpaceSaved'),
+                statAvgCompression: $('#statAvgCompression'),
+                cropModalOverlay: $('#cropModalOverlay'),
+                cropCanvasContainer: $('#cropCanvasContainer'),
+                cropCanvas: $('#cropCanvas'),
+                cropModalClose: $('#cropModalClose'),
+                cropCancelBtn: $('#cropCancelBtn'),
+                cropSaveBtn: $('#cropSaveBtn'),
+                cropRotateBtn: $('#cropRotateBtn'),
+                cropFlipHBtn: $('#cropFlipHBtn'),
+                cropFlipVBtn: $('#cropFlipVBtn'),
+                cropResetBtn: $('#cropResetBtn'),
+                confirmOverlay: $('#confirmOverlay'),
+                confirmTitle: $('#confirmTitle'),
+                confirmMsg: $('#confirmMsg'),
+                confirmCancelBtn: $('#confirmCancelBtn'),
+                confirmOkBtn: $('#confirmOkBtn'),
+                toastContainer: $('#toastContainer'),
+            };
+
+            // ──────────────────────────── UTILS ────────────────────────────
+            function formatBytes(bytes) {
+                if (bytes === 0 || bytes === null || bytes === undefined || isNaN(bytes)) return '0 B';
+                if (bytes < 0) return '0 B';
+                const k = 1024;
+                const sizes = ['B', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                const val = bytes / Math.pow(k, i);
+                return val.toFixed(i === 0 ? 0 : 2) + ' ' + sizes[i];
+            }
+
+            function debounce(fn, delay) {
+                let timer;
+                return function(...args) {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => fn.apply(this, args), delay);
+                };
+            }
+
+            function showToast(message, type = 'info') {
+                const toast = document.createElement('div');
+                toast.className = 'toast ' + type;
+                toast.textContent = message;
+                dom.toastContainer.appendChild(toast);
+                setTimeout(() => {
+                    if (toast.parentNode) toast.parentNode.removeChild(toast);
+                }, 2900);
+            }
+
+            function showConfirm(title, message) {
+                return new Promise((resolve) => {
+                    dom.confirmTitle.textContent = title;
+                    dom.confirmMsg.textContent = message;
+                    dom.confirmOverlay.classList.remove('hidden');
+                    const cleanup = () => {
+                        dom.confirmOverlay.classList.add('hidden');
+                        dom.confirmOkBtn.removeEventListener('click', onOk);
+                        dom.confirmCancelBtn.removeEventListener('click', onCancel);
+                    };
+                    const onOk = () => { cleanup();
+                        resolve(true); };
+                    const onCancel = () => { cleanup();
+                        resolve(false); };
+                    dom.confirmOkBtn.addEventListener('click', onOk);
+                    dom.confirmCancelBtn.addEventListener('click', onCancel);
+                });
+            }
+
+            // ──────────────────────────── THEME ────────────────────────────
+            function initTheme() {
+                const saved = localStorage.getItem('imgcompressorpro_theme');
+                if (saved === 'dark') {
+                    state.theme = 'dark';
+                    dom.appContainer.classList.add('dark');
+                    dom.themeToggle.textContent = '☀️';
+                    dom.themeToggle.setAttribute('aria-label', 'Switch to light mode');
+                } else {
+                    state.theme = 'light';
+                    dom.appContainer.classList.remove('dark');
+                    dom.themeToggle.textContent = '🌙';
+                    dom.themeToggle.setAttribute('aria-label', 'Switch to dark mode');
+                }
+            }
+
+            function toggleTheme() {
+                if (state.theme === 'light') {
+                    state.theme = 'dark';
+                    dom.appContainer.classList.add('dark');
+                    dom.themeToggle.textContent = '☀️';
+                    dom.themeToggle.setAttribute('aria-label', 'Switch to light mode');
+                    localStorage.setItem('imgcompressorpro_theme', 'dark');
+                } else {
+                    state.theme = 'light';
+                    dom.appContainer.classList.remove('dark');
+                    dom.themeToggle.textContent = '🌙';
+                    dom.themeToggle.setAttribute('aria-label', 'Switch to dark mode');
+                    localStorage.setItem('imgcompressorpro_theme', 'light');
+                }
+            }
+
+            // ──────────────────────────── WATERMARK MODE ────────────────────────────
+            function updateWatermarkUIMode() {
+                dom.wmModeTabs.forEach(tab => {
+                    const mode = tab.getAttribute('data-wm-mode');
+                    tab.classList.toggle('active', mode === state.wmMode);
+                    tab.setAttribute('aria-selected', mode === state.wmMode ? 'true' : 'false');
+                });
+                dom.wmTextFields.style.display = state.wmMode === 'text' ? '' : 'none';
+                dom.wmImageFields.style.display = state.wmMode === 'image' ? '' : 'none';
+                dom.wmCommonFields.style.display = state.wmMode === 'none' ? 'none' : '';
+                dom.wmSizeGroup.style.display = state.wmMode === 'image' ? '' : 'none';
+            }
+
+            function setWatermarkMode(mode) {
+                state.wmMode = mode;
+                updateWatermarkUIMode();
+                reprocessAllDebounced();
+            }
+
+            // ──────────────────────────── IMAGE PROCESSING ENGINE ────────────────────────────
+            function getOutputFormat(originalType) {
+                if (state.format === 'auto') {
+                    if (originalType === 'image/png') return 'image/png';
+                    if (originalType === 'image/webp') return 'image/webp';
+                    return 'image/jpeg';
+                }
+                return state.format;
+            }
+
+            function getResizeDimensions(origW, origH) {
+                if (state.resizeMode === 'none') return { w: origW, h: origH };
+                if (state.resizeMode === 'custom') {
+                    let cw = state.customWidth ? parseInt(state.customWidth) : null;
+                    let ch = state.customHeight ? parseInt(state.customHeight) : null;
+                    if (cw && ch) return { w: Math.max(1, cw), h: Math.max(1, ch) };
+                    if (cw && !ch && state.preserveAspect && origW > 0) {
+                        return { w: Math.max(1, cw), h: Math.max(1, Math.round(cw * origH / origW)) };
+                    }
+                    if (!cw && ch && state.preserveAspect && origH > 0) {
+                        return { w: Math.max(1, Math.round(ch * origW / origH)), h: Math.max(1, ch) };
+                    }
+                    if (cw) return { w: Math.max(1, cw), h: origH };
+                    if (ch) return { w: origW, h: Math.max(1, ch) };
+                    return { w: origW, h: origH };
+                }
+                const [rw, rh] = state.resizeMode.split('x').map(Number);
+                if (rw && rh) return { w: rw, h: rh };
+                return { w: origW, h: origH };
+            }
+
+            function applyWatermarkToCanvas(canvas, ctx, imgW, imgH) {
+                if (state.wmMode === 'none') return;
+                const opacity = state.wmOpacity / 100;
+                const rotation = (state.wmRotation * Math.PI) / 180;
+
+                ctx.save();
+                ctx.globalAlpha = opacity;
+
+                // Calculate position
+                let px, py;
+                const margin = Math.max(imgW, imgH) * 0.03;
+                switch (state.wmPosition) {
+                    case 'top-left':
+                        px = margin;
+                        py = margin;
+                        break;
+                    case 'top-right':
+                        px = imgW - margin;
+                        py = margin;
+                        break;
+                    case 'bottom-left':
+                        px = margin;
+                        py = imgH - margin;
+                        break;
+                    case 'bottom-right':
+                        px = imgW - margin;
+                        py = imgH - margin;
+                        break;
+                    case 'center':
+                    default:
+                        px = imgW / 2;
+                        py = imgH / 2;
+                        break;
+                }
+
+                ctx.translate(px, py);
+                ctx.rotate(rotation);
+
+                if (state.wmMode === 'text') {
+                    const fontStyle = (state.wmItalic ? 'italic ' : '') + (state.wmBold ? 'bold ' : '');
+                    const fontSize = Math.max(4, state.wmFontSize);
+                    ctx.font = `${fontStyle}${fontSize}px "${state.wmFont}", sans-serif`;
+                    ctx.fillStyle = state.wmColor;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(state.wmText || '', 0, 0);
+                } else if (state.wmMode === 'image' && state.wmImageDataUrl) {
+                    const wmImg = new Image();
+                    wmImg.src = state.wmImageDataUrl;
+                    if (wmImg.complete && wmImg.naturalWidth > 0) {
+                        const targetW = Math.max(10, (state.wmSizePercent / 100) * imgW);
+                        const ratio = wmImg.naturalHeight / wmImg.naturalWidth;
+                        const targetH = targetW * ratio;
+                        ctx.drawImage(wmImg, -targetW / 2, -targetH / 2, targetW, targetH);
+                    } else {
+                        // Need to load it synchronously... tricky. For preview we handle async.
+                        // Store a flag to indicate async watermark
+                    }
+                }
+                ctx.restore();
+            }
+
+            function applyWatermarkToCanvasAsync(canvas, ctx, imgW, imgH) {
+                return new Promise((resolve) => {
+                    if (state.wmMode === 'none') {
+                        resolve();
+                        return;
+                    }
+                    const opacity = state.wmOpacity / 100;
+                    const rotation = (state.wmRotation * Math.PI) / 180;
+
+                    ctx.save();
+                    ctx.globalAlpha = opacity;
+
+                    let px, py;
+                    const margin = Math.max(imgW, imgH) * 0.03;
+                    switch (state.wmPosition) {
+                        case 'top-left':
+                            px = margin;
+                            py = margin;
+                            break;
+                        case 'top-right':
+                            px = imgW - margin;
+                            py = margin;
+                            break;
+                        case 'bottom-left':
+                            px = margin;
+                            py = imgH - margin;
+                            break;
+                        case 'bottom-right':
+                            px = imgW - margin;
+                            py = imgH - margin;
+                            break;
+                        case 'center':
+                        default:
+                            px = imgW / 2;
+                            py = imgH / 2;
+                            break;
+                    }
+
+                    ctx.translate(px, py);
+                    ctx.rotate(rotation);
+
+                    if (state.wmMode === 'text') {
+                        const fontStyle = (state.wmItalic ? 'italic ' : '') + (state.wmBold ? 'bold ' : '');
+                        const fontSize = Math.max(4, state.wmFontSize);
+                        ctx.font = `${fontStyle}${fontSize}px "${state.wmFont}", sans-serif`;
+                        ctx.fillStyle = state.wmColor;
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(state.wmText || '', 0, 0);
+                        ctx.restore();
+                        resolve();
+                    } else if (state.wmMode === 'image' && state.wmImageDataUrl) {
+                        const wmImg = new Image();
+                        wmImg.onload = () => {
+                            const targetW = Math.max(10, (state.wmSizePercent / 100) * imgW);
+                            const ratio = wmImg.naturalHeight / wmImg.naturalWidth;
+                            const targetH = targetW * ratio;
+                            ctx.drawImage(wmImg, -targetW / 2, -targetH / 2, targetW, targetH);
+                            ctx.restore();
+                            resolve();
+                        };
+                        wmImg.onerror = () => {
+                            ctx.restore();
+                            resolve();
+                        };
+                        wmImg.src = state.wmImageDataUrl;
+                        if (wmImg.complete && wmImg.naturalWidth > 0) {
+                            const targetW = Math.max(10, (state.wmSizePercent / 100) * imgW);
+                            const ratio = wmImg.naturalHeight / wmImg.naturalWidth;
+                            const targetH = targetW * ratio;
+                            ctx.drawImage(wmImg, -targetW / 2, -targetH / 2, targetW, targetH);
+                            ctx.restore();
+                            resolve();
+                        }
+                    } else {
+                        ctx.restore();
+                        resolve();
+                    }
+                });
+            }
+
+            async function processImageData(imageData) {
+                const { file, cropData } = imageData;
+                const originalBlob = imageData.originalBlob || file;
+
+                // Load image
+                const img = await loadImageFromBlob(originalBlob);
+                let currentW = img.naturalWidth;
+                let currentH = img.naturalHeight;
+
+                // Create working canvas
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+
+                // Apply crop if exists
+                let sourceX = 0,
+                    sourceY = 0,
+                    sourceW = currentW,
+                    sourceH = currentH;
+                let cropApplied = false;
+
+                if (cropData && cropData.active) {
+                    sourceX = cropData.x;
+                    sourceY = cropData.y;
+                    sourceW = cropData.w;
+                    sourceH = cropData.h;
+                    cropApplied = true;
+                }
+
+                // Handle rotation/flip from cropData
+                let effectiveW = sourceW;
+                let effectiveH = sourceH;
+                const rotation = cropData ? (cropData.rotation || 0) : 0;
+                const flipH = cropData ? (cropData.flipH || false) : false;
+                const flipV = cropData ? (cropData.flipV || false) : false;
+
+                if (rotation === 90 || rotation === 270) {
+                    [effectiveW, effectiveH] = [effectiveH, effectiveW];
+                }
+
+                // Get resize dimensions
+                const resize = getResizeDimensions(effectiveW, effectiveH);
+                const finalW = resize.w;
+                const finalH = resize.h;
+
+                canvas.width = finalW;
+                canvas.height = finalH;
+
+                // Draw with transforms
+                ctx.save();
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, finalW, finalH);
+
+                // Apply rotation and flip
+                ctx.translate(finalW / 2, finalH / 2);
+                if (flipH) ctx.scale(-1, 1);
+                if (flipV) ctx.scale(1, -1);
+                if (rotation) ctx.rotate((rotation * Math.PI) / 180);
+
+                // Calculate drawing dimensions
+                let drawW = effectiveW;
+                let drawH = effectiveH;
+                if (rotation === 90 || rotation === 270) {
+                    [drawW, drawH] = [drawH, drawW];
+                }
+
+                const scaleX = finalW / drawW;
+                const scaleY = finalH / drawH;
+                const scale = Math.min(scaleX, scaleY);
+                const dw = drawW * scale;
+                const dh = drawH * scale;
+                const dx = (finalW - dw) / 2;
+                const dy = (finalH - dh) / 2;
+
+                ctx.translate(-finalW / 2, -finalH / 2);
+                ctx.drawImage(img, sourceX, sourceY, sourceW, sourceH, dx, dy, dw, dh);
+                ctx.restore();
+
+                // Apply watermark
+                await applyWatermarkToCanvasAsync(canvas, ctx, finalW, finalH);
+
+                // Export
+                const outputFormat = getOutputFormat(file.type);
+                const quality = state.quality / 100;
+                const blob = await canvasToBlob(canvas, outputFormat, quality);
+
+                // Update imageData
+                imageData.processedBlob = blob;
+                imageData.processedSize = blob.size;
+                imageData.width = finalW;
+                imageData.height = finalH;
+                imageData.processedDataUrl = canvas.toDataURL(outputFormat, quality);
+
+                return imageData;
+            }
+
+            function loadImageFromBlob(blob) {
+                return new Promise((resolve, reject) => {
+                    const url = URL.createObjectURL(blob);
+                    const img = new Image();
+                    img.onload = () => {
+                        URL.revokeObjectURL(url);
+                        resolve(img);
+                    };
+                    img.onerror = () => {
+                        URL.revokeObjectURL(url);
+                        reject(new Error('Failed to load image'));
+                    };
+                    img.src = url;
+                });
+            }
+
+            function canvasToBlob(canvas, format, quality) {
+                return new Promise((resolve, reject) => {
+                    canvas.toBlob((blob) => {
+                        if (blob) resolve(blob);
+                        else reject(new Error('Canvas toBlob failed'));
+                    }, format, quality);
+                });
+            }
+
+            async function processImageDataSync(imageData) {
+                // Synchronous version for quick preview (watermark may be approximate)
+                const { file, cropData } = imageData;
+                const originalBlob = imageData.originalBlob || file;
+                const img = await loadImageFromBlob(originalBlob);
+                let currentW = img.naturalWidth;
+                let currentH = img.naturalHeight;
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                let sourceX = 0,
+                    sourceY = 0,
+                    sourceW = currentW,
+                    sourceH = currentH;
+                if (cropData && cropData.active) {
+                    sourceX = cropData.x;
+                    sourceY = cropData.y;
+                    sourceW = cropData.w;
+                    sourceH = cropData.h;
+                }
+                let effectiveW = sourceW;
+                let effectiveH = sourceH;
+                const rotation = cropData ? (cropData.rotation || 0) : 0;
+                const flipH = cropData ? (cropData.flipH || false) : false;
+                const flipV = cropData ? (cropData.flipV || false) : false;
+                if (rotation === 90 || rotation === 270) {
+                    [effectiveW, effectiveH] = [effectiveH, effectiveW];
+                }
+                const resize = getResizeDimensions(effectiveW, effectiveH);
+                const finalW = resize.w;
+                const finalH = resize.h;
+                canvas.width = finalW;
+                canvas.height = finalH;
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, finalW, finalH);
+                ctx.save();
+                ctx.translate(finalW / 2, finalH / 2);
+                if (flipH) ctx.scale(-1, 1);
+                if (flipV) ctx.scale(1, -1);
+                if (rotation) ctx.rotate((rotation * Math.PI) / 180);
+                let drawW = effectiveW;
+                let drawH = effectiveH;
+                if (rotation === 90 || rotation === 270) {
+                    [drawW, drawH] = [drawH, drawW];
+                }
+                const scaleX = finalW / drawW;
+                const scaleY = finalH / drawH;
+                const scale = Math.min(scaleX, scaleY);
+                const dw = drawW * scale;
+                const dh = drawH * scale;
+                const dx = (finalW - dw) / 2;
+                const dy = (finalH - dh) / 2;
+                ctx.translate(-finalW / 2, -finalH / 2);
+                ctx.drawImage(img, sourceX, sourceY, sourceW, sourceH, dx, dy, dw, dh);
+                ctx.restore();
+                applyWatermarkToCanvas(canvas, ctx, finalW, finalH);
+                const outputFormat = getOutputFormat(file.type);
+                const quality = state.quality / 100;
+                const blob = await canvasToBlob(canvas, outputFormat, quality);
+                imageData.processedBlob = blob;
+                imageData.processedSize = blob.size;
+                imageData.width = finalW;
+                imageData.height = finalH;
+                imageData.processedDataUrl = canvas.toDataURL(outputFormat, quality);
+                return imageData;
+            }
+
+            // ──────────────────────────── REPROCESS ────────────────────────────
+            const reprocessAllDebounced = debounce(async () => {
+                if (state.isProcessing) return;
+                state.isProcessing = true;
+                try {
+                    for (const imgData of state.images) {
+                        await processImageDataSync(imgData);
+                    }
+                    renderAllCards();
+                    updateStatistics();
+                } catch (e) {
+                    console.error('Reprocess error:', e);
+                }
+                state.isProcessing = false;
+            }, 200);
+
+            async function reprocessAll() {
+                if (state.isProcessing) return;
+                state.isProcessing = true;
+                try {
+                    for (const imgData of state.images) {
+                        await processImageDataSync(imgData);
+                    }
+                    renderAllCards();
+                    updateStatistics();
+                } catch (e) {
+                    console.error('Reprocess error:', e);
+                }
+                state.isProcessing = false;
+            }
+
+            // ──────────────────────────── RENDER ────────────────────────────
+            function renderAllCards() {
+                dom.cardsGrid.innerHTML = '';
+                if (state.images.length === 0) {
+                    dom.emptyState.style.display = '';
+                    dom.statsPanel.style.opacity = '0.6';
+                } else {
+                    dom.emptyState.style.display = 'none';
+                    dom.statsPanel.style.opacity = '1';
+                    state.images.forEach((imgData, index) => {
+                        const card = createImageCard(imgData, index);
+                        dom.cardsGrid.appendChild(card);
+                    });
+                }
+                updateStatistics();
+            }
+
+            function createImageCard(imgData, index) {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.setAttribute('role', 'listitem');
+
+                const originalUrl = imgData.originalDataUrl || URL.createObjectURL(imgData.originalBlob || imgData
+                    .file);
+                const compressedUrl = imgData.processedDataUrl || originalUrl;
+                const originalSize = (imgData.originalBlob || imgData.file).size;
+                const compressedSize = imgData.processedSize || originalSize;
+                const compressionPct = originalSize > 0 ? Math.round((1 - compressedSize / originalSize) * 100) : 0;
+                const dims = imgData.width && imgData.height ? `${imgData.width}×${imgData.height}` : '—';
+
+                card.innerHTML = `
+                <div class="card-preview-row">
+                  <div class="preview-box">
+                    <div class="preview-label">Original</div>
+                    <img src="${originalUrl}" alt="Original preview" loading="lazy" style="max-height:130px;">
+                  </div>
+                  <div class="preview-box">
+                    <div class="preview-label">Compressed</div>
+                    <img src="${compressedUrl}" alt="Compressed preview" loading="lazy" style="max-height:130px;">
+                  </div>
+                </div>
+                <div class="card-info">
+                  <span class="filename" title="${imgData.file.name}">${imgData.file.name}</span>
+                  <div class="stat-row"><span>Original:</span> <strong>${formatBytes(originalSize)}</strong></div>
+                  <div class="stat-row"><span>Compressed:</span> <strong>${formatBytes(compressedSize)}</strong></div>
+                  <div class="stat-row"><span>Dimensions:</span> <strong>${dims}</strong></div>
+                  <div class="stat-row"><span>Compression:</span> <strong style="color:${compressionPct>=0?'var(--success)':'var(--danger)'}">${compressionPct}%</strong></div>
+                </div>
+                <div class="card-actions">
+                  <button class="btn btn-outline btn-sm crop-btn" data-index="${index}" type="button" aria-label="Crop image">✂️ Crop</button>
+                  <button class="btn btn-primary btn-sm download-compressed-btn" data-index="${index}" type="button" aria-label="Download compressed image">⬇ Compressed</button>
+                  <button class="btn btn-outline btn-sm download-original-btn" data-index="${index}" type="button" aria-label="Download original image">📥 Original</button>
+                  <button class="btn btn-danger btn-xs remove-btn" data-index="${index}" type="button" aria-label="Remove image">✕</button>
+                </div>
+              `;
+
+                // Attach event listeners
+                card.querySelector('.crop-btn').addEventListener('click', () => openCropEditor(index));
+                card.querySelector('.download-compressed-btn').addEventListener('click', () => downloadCompressed(
+                    index));
+                card.querySelector('.download-original-btn').addEventListener('click', () => downloadOriginal(index));
+                card.querySelector('.remove-btn').addEventListener('click', () => removeImage(index));
+
+                return card;
+            }
+
+            function updateStatistics() {
+                const total = state.images.length;
+                let origTotal = 0;
+                let compTotal = 0;
+                let totalCompressionPct = 0;
+
+                state.images.forEach(img => {
+                    const os = (img.originalBlob || img.file).size;
+                    const cs = img.processedSize || os;
+                    origTotal += os;
+                    compTotal += cs;
+                    if (os > 0) totalCompressionPct += Math.round((1 - cs / os) * 100);
+                });
+
+                const spaceSaved = origTotal - compTotal;
+                const avgComp = total > 0 ? Math.round(totalCompressionPct / total) : 0;
+
+                dom.statTotalImages.textContent = total;
+                dom.statOriginalSize.textContent = formatBytes(origTotal);
+                dom.statCompressedSize.textContent = formatBytes(compTotal);
+                dom.statSpaceSaved.textContent = formatBytes(Math.max(0, spaceSaved));
+                dom.statAvgCompression.textContent = avgComp + '%';
+            }
+
+            // ──────────────────────────── IMAGE OPERATIONS ────────────────────────────
+            function addImages(files) {
+                const validFiles = [];
+                for (const file of files) {
+                    if (!file.type.match(/^image\/(jpeg|png|webp|gif|svg\+xml)$/)) {
+                        showToast(`Skipped "${file.name}": Unsupported format.`, 'error');
+                        continue;
+                    }
+                    if (file.size > MAX_FILE_SIZE) {
+                        showToast(`Skipped "${file.name}": Exceeds 20 MB limit.`, 'error');
+                        continue;
+                    }
+                    validFiles.push(file);
+                }
+
+                validFiles.forEach(file => {
+                    const imgData = {
+                        id: ++imageIdCounter,
+                        file: file,
+                        originalBlob: file,
+                        cropData: { active: false, x: 0, y: 0, w: 0, h: 0, rotation: 0, flipH: false,
+                            flipV: false },
+                        processedBlob: null,
+                        processedSize: null,
+                        width: null,
+                        height: null,
+                        processedDataUrl: null,
+                        originalDataUrl: null,
+                    };
+                    // Generate original preview
+                    const url = URL.createObjectURL(file);
+                    imgData.originalDataUrl = url;
+                    state.images.push(imgData);
+                });
+
+                if (validFiles.length > 0) {
+                    showToast(`Added ${validFiles.length} image(s).`, 'success');
+                    reprocessAll().then(() => {
+                        renderAllCards();
+                        updateStatistics();
+                    });
+                }
+            }
+
+            function removeImage(index) {
+                if (index < 0 || index >= state.images.length) return;
+                const imgData = state.images[index];
+                if (imgData.originalDataUrl && imgData.originalDataUrl.startsWith('blob:')) {
+                    URL.revokeObjectURL(imgData.originalDataUrl);
+                }
+                state.images.splice(index, 1);
+                renderAllCards();
+                updateStatistics();
+                showToast('Image removed.', 'info');
+            }
+
+            async function clearAll() {
+                const confirmed = await showConfirm('Clear All Images?',
+                    'This will remove all uploaded images and reset all settings. This action cannot be undone.');
+                if (!confirmed) return;
+                state.images.forEach(img => {
+                    if (img.originalDataUrl && img.originalDataUrl.startsWith('blob:')) {
+                        URL.revokeObjectURL(img.originalDataUrl);
+                    }
+                });
+                state.images = [];
+                state.cropState = null;
+                renderAllCards();
+                updateStatistics();
+                showToast('All images cleared.', 'info');
+            }
+
+            function downloadCompressed(index) {
+                const imgData = state.images[index];
+                if (!imgData || !imgData.processedBlob) {
+                    showToast('Process the image first.', 'error');
+                    return;
+                }
+                triggerDownload(imgData.processedBlob, getDownloadName(imgData.file.name, true));
+            }
+
+            function downloadOriginal(index) {
+                const imgData = state.images[index];
+                if (!imgData) return;
+                const blob = imgData.originalBlob || imgData.file;
+                triggerDownload(blob, getDownloadName(imgData.file.name, false));
+            }
+
+            function getDownloadName(originalName, isCompressed) {
+                const dotIndex = originalName.lastIndexOf('.');
+                const base = dotIndex > 0 ? originalName.substring(0, dotIndex) : originalName;
+                const ext = dotIndex > 0 ? originalName.substring(dotIndex) : '';
+                const outFormat = state.format === 'auto' ? ext : '.' + state.format.split('/')[1];
+                if (isCompressed) {
+                    return base + '_compressed' + outFormat;
+                }
+                return originalName;
+            }
+
+            function triggerDownload(blob, filename) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+            }
+
+            async function compressAll() {
+                if (state.images.length === 0) {
+                    showToast('No images to compress.', 'info');
+                    return;
+                }
+                dom.progressBarWrap.style.display = '';
+                dom.progressText.style.display = '';
+                dom.progressBarFill.style.width = '0%';
+                dom.progressText.textContent = 'Processing...';
+                dom.compressAllBtn.disabled = true;
+
+                const total = state.images.length;
+                for (let i = 0; i < total; i++) {
+                    await processImageDataSync(state.images[i]);
+                    const pct = Math.round(((i + 1) / total) * 100);
+                    dom.progressBarFill.style.width = pct + '%';
+                    dom.progressText.textContent = `Processing ${i + 1} of ${total}...`;
+                    // Yield to UI
+                    await new Promise(r => setTimeout(r, 10));
+                }
+
+                dom.progressBarFill.style.width = '100%';
+                dom.progressText.textContent = 'Done!';
+                dom.compressAllBtn.disabled = false;
+                renderAllCards();
+                updateStatistics();
+                showToast(`Compressed ${total} image(s).`, 'success');
+                setTimeout(() => {
+                    dom.progressBarWrap.style.display = 'none';
+                    dom.progressText.style.display = 'none';
+                }, 2000);
+            }
+
+            // ──────────────────────────── CROP EDITOR ────────────────────────────
+            function openCropEditor(index) {
+                const imgData = state.images[index];
+                if (!imgData) return;
+                state.cropState = {
+                    index,
+                    imgData,
+                    rotation: imgData.cropData.rotation || 0,
+                    flipH: imgData.cropData.flipH || false,
+                    flipV: imgData.cropData.flipV || false,
+                    cropRect: imgData.cropData.active ? {
+                        x: imgData.cropData.x,
+                        y: imgData.cropData.y,
+                        w: imgData.cropData.w,
+                        h: imgData.cropData.h
+                    } : null,
+                    aspectRatio: null,
+                    isDragging: false,
+                    isResizing: false,
+                    resizeHandle: null,
+                    dragStartX: 0,
+                    dragStartY: 0,
+                    dragOrigRect: null,
+                    imageNaturalW: 0,
+                    imageNaturalH: 0,
+                    displayScale: 1,
+                    displayOffsetX: 0,
+                    displayOffsetY: 0,
+                };
+
+                dom.cropModalOverlay.classList.remove('hidden');
+                dom.cropCanvasContainer.innerHTML = '';
+                const canvas = document.createElement('canvas');
+                canvas.id = 'cropCanvas';
+                dom.cropCanvasContainer.appendChild(canvas);
+                state.cropState.canvas = canvas;
+
+                loadCropImage().then(() => {
+                    renderCropCanvas();
+                });
+            }
+
+            async function loadCropImage() {
+                const cs = state.cropState;
+                const blob = cs.imgData.originalBlob || cs.imgData.file;
+                const img = await loadImageFromBlob(blob);
+                cs.imageNaturalW = img.naturalWidth;
+                cs.imageNaturalH = img.naturalHeight;
+                cs.loadedImage = img;
+
+                // Default crop rect = full image
+                if (!cs.cropRect) {
+                    cs.cropRect = { x: 0, y: 0, w: img.naturalWidth, h: img.naturalHeight };
+                }
+            }
+
+            function renderCropCanvas() {
+                const cs = state.cropState;
+                if (!cs || !cs.loadedImage) return;
+                const canvas = cs.canvas;
+                const container = dom.cropCanvasContainer;
+                const maxW = Math.min(container.clientWidth - 4, 680);
+                const maxH = Math.min(window.innerHeight * 0.5, 500);
+
+                // Calculate display size
+                let displayW = cs.imageNaturalW;
+                let displayH = cs.imageNaturalH;
+                if (cs.rotation === 90 || cs.rotation === 270) {
+                    [displayW, displayH] = [displayH, displayW];
+                }
+                const scale = Math.min(maxW / displayW, maxH / displayH, 1);
+                displayW = Math.round(displayW * scale);
+                displayH = Math.round(displayH * scale);
+                cs.displayScale = scale;
+                cs.displayOffsetX = 0;
+                cs.displayOffsetY = 0;
+
+                canvas.width = displayW;
+                canvas.height = displayH;
+                canvas.style.width = displayW + 'px';
+                canvas.style.height = displayH + 'px';
+
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, displayW, displayH);
+                ctx.fillStyle = '#cccccc';
+                ctx.fillRect(0, 0, displayW, displayH);
+
+                ctx.save();
+                ctx.translate(displayW / 2, displayH / 2);
+                if (cs.flipH) ctx.scale(-1, 1);
+                if (cs.flipV) ctx.scale(1, -1);
+                if (cs.rotation) ctx.rotate((cs.rotation * Math.PI) / 180);
+
+                const srcW = cs.imageNaturalW;
+                const srcH = cs.imageNaturalH;
+                let drawW = srcW;
+                let drawH = srcH;
+                if (cs.rotation === 90 || cs.rotation === 270) {
+                    [drawW, drawH] = [drawH, drawW];
+                }
+                const s = Math.min(displayW / drawW, displayH / drawH);
+                const dw = drawW * s;
+                const dh = drawH * s;
+                ctx.drawImage(cs.loadedImage, -dw / 2, -dh / 2, dw, dh);
+                ctx.restore();
+
+                // Draw crop overlay
+                drawCropOverlay(ctx, displayW, displayH, cs);
+                attachCropEvents(canvas, cs);
+            }
+
+            function drawCropOverlay(ctx, displayW, displayH, cs) {
+                const rect = cs.cropRect;
+                // Map natural coords to display coords
+                let rx, ry, rw, rh;
+                if (cs.rotation === 90 || cs.rotation === 270) {
+                    const nw = cs.imageNaturalH;
+                    const nh = cs.imageNaturalW;
+                    rx = (rect.x / nw) * displayW;
+                    ry = (rect.y / nh) * displayH;
+                    rw = (rect.w / nw) * displayW;
+                    rh = (rect.h / nh) * displayH;
+                } else {
+                    rx = (rect.x / cs.imageNaturalW) * displayW;
+                    ry = (rect.y / cs.imageNaturalH) * displayH;
+                    rw = (rect.w / cs.imageNaturalW) * displayW;
+                    rh = (rect.h / cs.imageNaturalH) * displayH;
+                }
+
+                // Clamp
+                rx = Math.max(0, Math.min(displayW - 1, rx));
+                ry = Math.max(0, Math.min(displayH - 1, ry));
+                rw = Math.max(5, Math.min(displayW - rx, rw));
+                rh = Math.max(5, Math.min(displayH - ry, rh));
+
+                cs.displayCropRect = { x: rx, y: ry, w: rw, h: rh };
+
+                // Dark overlay
+                ctx.fillStyle = 'rgba(0,0,0,0.55)';
+                ctx.fillRect(0, 0, displayW, displayH);
+                ctx.clearRect(rx, ry, rw, rh);
+
+                // Border
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([6, 3]);
+                ctx.strokeRect(rx, ry, rw, rh);
+                ctx.setLineDash([]);
+
+                // Handles
+                const hSize = 8;
+                const handles = [
+                    { cx: rx, cy: ry }, { cx: rx + rw, cy: ry }, { cx: rx, cy: ry + rh }, { cx: rx + rw, cy: ry +
+                            rh },
+                    { cx: rx + rw / 2, cy: ry }, { cx: rx + rw / 2, cy: ry + rh },
+                    { cx: rx, cy: ry + rh / 2 }, { cx: rx + rw, cy: ry + rh / 2 },
+                ];
+                handles.forEach(h => {
+                    ctx.fillStyle = '#fff';
+                    ctx.strokeStyle = '#333';
+                    ctx.lineWidth = 1.5;
+                    ctx.fillRect(h.cx - hSize / 2, h.cy - hSize / 2, hSize, hSize);
+                    ctx.strokeRect(h.cx - hSize / 2, h.cy - hSize / 2, hSize, hSize);
+                });
+            }
+
+            function attachCropEvents(canvas, cs) {
+                const getPos = (e) => {
+                    const rect = canvas.getBoundingClientRect();
+                    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+                };
+
+                const getHandle = (px, py) => {
+                    const r = cs.displayCropRect;
+                    if (!r) return null;
+                    const hSize = 12;
+                    const handles = {
+                        'nw': { x: r.x, y: r.y },
+                        'ne': { x: r.x + r.w, y: r.y },
+                        'sw': { x: r.x, y: r.y + r.h },
+                        'se': { x: r.x + r.w, y: r.y + r.h },
+                        'n': { x: r.x + r.w / 2, y: r.y },
+                        's': { x: r.x + r.w / 2, y: r.y + r.h },
+                        'w': { x: r.x, y: r.y + r.h / 2 },
+                        'e': { x: r.x + r.w, y: r.y + r.h / 2 },
+                    };
+                    for (const [name, pos] of Object.entries(handles)) {
+                        if (Math.abs(px - pos.x) < hSize && Math.abs(py - pos.y) < hSize) return name;
+                    }
+                    if (px >= r.x && px <= r.x + r.w && py >= r.y && py <= r.y + r.h) return 'move';
+                    return null;
+                };
+
+                const onPointerDown = (e) => {
+                    const pos = getPos(e);
+                    const handle = getHandle(pos.x, pos.y);
+                    if (handle) {
+                        cs.isDragging = true;
+                        cs.isResizing = handle !== 'move';
+                        cs.resizeHandle = handle;
+                        cs.dragStartX = pos.x;
+                        cs.dragStartY = pos.y;
+                        cs.dragOrigRect = { ...cs.displayCropRect };
+                        canvas.setPointerCapture(e.pointerId);
+                        e.preventDefault();
+                    }
+                };
+
+                const onPointerMove = (e) => {
+                    if (!cs.isDragging) return;
+                    const pos = getPos(e);
+                    const dx = pos.x - cs.dragStartX;
+                    const dy = pos.y - cs.dragStartY;
+                    const orig = cs.dragOrigRect;
+                    const displayW = canvas.width;
+                    const displayH = canvas.height;
+
+                    let nr = { x: orig.x, y: orig.y, w: orig.w, h: orig.h };
+
+                    if (cs.isResizing) {
+                        const handle = cs.resizeHandle;
+                        if (handle.includes('e')) { nr.w = Math.max(10, orig.w + dx); }
+                        if (handle.includes('w')) { nr.x = Math.min(orig.x + orig.w - 10, orig.x + dx);
+                            nr.w = orig.x + orig.w - nr.x; }
+                        if (handle.includes('s')) { nr.h = Math.max(10, orig.h + dy); }
+                        if (handle.includes('n')) { nr.y = Math.min(orig.y + orig.h - 10, orig.y + dy);
+                            nr.h = orig.y + orig.h - nr.y; }
+                        if (cs.aspectRatio && (handle.includes('e') || handle.includes('w') || handle.includes('s') ||
+                                handle.includes('n'))) {
+                            if (handle.includes('e') || handle.includes('w')) {
+                                nr.h = nr.w / cs.aspectRatio;
+                            } else {
+                                nr.w = nr.h * cs.aspectRatio;
+                            }
+                        }
+                    } else {
+                        nr.x = Math.max(0, Math.min(displayW - nr.w, orig.x + dx));
+                        nr.y = Math.max(0, Math.min(displayH - nr.h, orig.y + dy));
+                    }
+
+                    // Clamp
+                    nr.x = Math.max(0, Math.min(displayW - 10, nr.x));
+                    nr.y = Math.max(0, Math.min(displayH - 10, nr.y));
+                    nr.w = Math.max(10, Math.min(displayW - nr.x, nr.w));
+                    nr.h = Math.max(10, Math.min(displayH - nr.y, nr.h));
+
+                    cs.displayCropRect = nr;
+
+                    // Convert back to natural coords
+                    updateNaturalCropFromDisplay(cs);
+
+                    // Redraw
+                    const ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, displayW, displayH);
+                    ctx.fillStyle = '#cccccc';
+                    ctx.fillRect(0, 0, displayW, displayH);
+                    ctx.save();
+                    ctx.translate(displayW / 2, displayH / 2);
+                    if (cs.flipH) ctx.scale(-1, 1);
+                    if (cs.flipV) ctx.scale(1, -1);
+                    if (cs.rotation) ctx.rotate((cs.rotation * Math.PI) / 180);
+                    const srcW = cs.imageNaturalW;
+                    const srcH = cs.imageNaturalH;
+                    let drawW = srcW;
+                    let drawH = srcH;
+                    if (cs.rotation === 90 || cs.rotation === 270)[drawW, drawH] = [drawH, drawW];
+                    const s = Math.min(displayW / drawW, displayH / drawH);
+                    const dw = drawW * s;
+                    const dh = drawH * s;
+                    ctx.drawImage(cs.loadedImage, -dw / 2, -dh / 2, dw, dh);
+                    ctx.restore();
+                    drawCropOverlay(ctx, displayW, displayH, cs);
+                };
+
+                const onPointerUp = () => {
+                    if (cs.isDragging) {
+                        cs.isDragging = false;
+                        cs.isResizing = false;
+                        cs.resizeHandle = null;
+                        updateNaturalCropFromDisplay(cs);
+                    }
+                };
+
+                canvas.addEventListener('pointerdown', onPointerDown);
+                canvas.addEventListener('pointermove', onPointerMove);
+                canvas.addEventListener('pointerup', onPointerUp);
+                canvas.addEventListener('pointerleave', onPointerUp);
+                cs._cropEventCleanup = () => {
+                    canvas.removeEventListener('pointerdown', onPointerDown);
+                    canvas.removeEventListener('pointermove', onPointerMove);
+                    canvas.removeEventListener('pointerup', onPointerUp);
+                    canvas.removeEventListener('pointerleave', onPointerUp);
+                };
+            }
+
+            function updateNaturalCropFromDisplay(cs) {
+                const dr = cs.displayCropRect;
+                if (!dr) return;
+                const displayW = cs.canvas.width;
+                const displayH = cs.canvas.height;
+                let nx, ny, nw, nh;
+                if (cs.rotation === 90 || cs.rotation === 270) {
+                    const nw = cs.imageNaturalH;
+                    const nh = cs.imageNaturalW;
+                    nx = (dr.x / displayW) * nw;
+                    ny = (dr.y / displayH) * nh;
+                    nw = (dr.w / displayW) * nw;
+                    nh = (dr.h / displayH) * nh;
+                    cs.cropRect = { x: Math.round(nx), y: Math.round(ny), w: Math.round(nw), h: Math.round(nh) };
+                } else {
+                    nx = (dr.x / displayW) * cs.imageNaturalW;
+                    ny = (dr.y / displayH) * cs.imageNaturalH;
+                    nw = (dr.w / displayW) * cs.imageNaturalW;
+                    nh = (dr.h / displayH) * cs.imageNaturalH;
+                    cs.cropRect = { x: Math.round(nx), y: Math.round(ny), w: Math.round(nw), h: Math.round(nh) };
+                }
+                // Clamp to image bounds
+                const maxW = cs.rotation === 90 || cs.rotation === 270 ? cs.imageNaturalH : cs.imageNaturalW;
+                const maxH = cs.rotation === 90 || cs.rotation === 270 ? cs.imageNaturalW : cs.imageNaturalH;
+                cs.cropRect.x = Math.max(0, Math.min(maxW - 1, cs.cropRect.x));
+                cs.cropRect.y = Math.max(0, Math.min(maxH - 1, cs.cropRect.y));
+                cs.cropRect.w = Math.max(1, Math.min(maxW - cs.cropRect.x, cs.cropRect.w));
+                cs.cropRect.h = Math.max(1, Math.min(maxH - cs.cropRect.y, cs.cropRect.h));
+            }
+
+            function closeCropEditor(save) {
+                const cs = state.cropState;
+                if (!cs) {
+                    dom.cropModalOverlay.classList.add('hidden');
+                    return;
+                }
+                if (cs._cropEventCleanup) cs._cropEventCleanup();
+
+                if (save && cs.cropRect) {
+                    updateNaturalCropFromDisplay(cs);
+                    const imgData = state.images[cs.index];
+                    imgData.cropData = {
+                        active: true,
+                        x: cs.cropRect.x,
+                        y: cs.cropRect.y,
+                        w: cs.cropRect.w,
+                        h: cs.cropRect.h,
+                        rotation: cs.rotation,
+                        flipH: cs.flipH,
+                        flipV: cs.flipV,
+                    };
+                    reprocessAll().then(() => {
+                        renderAllCards();
+                        updateStatistics();
+                    });
+                }
+                state.cropState = null;
+                dom.cropModalOverlay.classList.add('hidden');
+            }
+
+            function cropSetPreset(preset) {
+                const cs = state.cropState;
+                if (!cs) return;
+                if (preset === 'free') {
+                    cs.aspectRatio = null;
+                } else if (preset === 'square' || preset === '1:1') {
+                    cs.aspectRatio = 1;
+                } else if (preset === '16:9') {
+                    cs.aspectRatio = 16 / 9;
+                } else if (preset === '4:3') {
+                    cs.aspectRatio = 4 / 3;
+                }
+                // Adjust current rect to match aspect ratio
+                if (cs.aspectRatio && cs.displayCropRect) {
+                    const dr = cs.displayCropRect;
+                    const newH = dr.w / cs.aspectRatio;
+                    if (newH <= cs.canvas.height) {
+                        dr.h = newH;
+                        dr.y = Math.max(0, Math.min(cs.canvas.height - dr.h, dr.y));
+                    } else {
+                        const newW = dr.h * cs.aspectRatio;
+                        dr.w = newW;
+                        dr.x = Math.max(0, Math.min(cs.canvas.width - dr.w, dr.x));
+                    }
+                    updateNaturalCropFromDisplay(cs);
+                }
+                renderCropCanvas();
+            }
+
+            function cropRotate() {
+                const cs = state.cropState;
+                if (!cs) return;
+                cs.rotation = ((cs.rotation || 0) + 90) % 360;
+                cs.cropRect = { x: 0, y: 0, w: cs.imageNaturalW, h: cs.imageNaturalH };
+                cs.displayCropRect = null;
+                renderCropCanvas();
+            }
+
+            function cropFlipH() {
+                const cs = state.cropState;
+                if (!cs) return;
+                cs.flipH = !cs.flipH;
+                renderCropCanvas();
+            }
+
+            function cropFlipV() {
+                const cs = state.cropState;
+                if (!cs) return;
+                cs.flipV = !cs.flipV;
+                renderCropCanvas();
+            }
+
+            function cropReset() {
+                const cs = state.cropState;
+                if (!cs) return;
+                cs.rotation = 0;
+                cs.flipH = false;
+                cs.flipV = false;
+                cs.aspectRatio = null;
+                cs.cropRect = { x: 0, y: 0, w: cs.imageNaturalW, h: cs.imageNaturalH };
+                cs.displayCropRect = null;
+                renderCropCanvas();
+            }
+
+            // ──────────────────────────── EVENT LISTENERS ────────────────────────────
+            dom.themeToggle.addEventListener('click', toggleTheme);
+
+            // Upload
+            dom.uploadZone.addEventListener('click', (e) => {
+                if (e.target !== dom.fileInput) dom.fileInput.click();
+            });
+            dom.fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) addImages(Array.from(e.target.files));
+                dom.fileInput.value = '';
+            });
+            dom.uploadZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dom.uploadZone.classList.add('drag-over');
+            });
+            dom.uploadZone.addEventListener('dragleave', () => {
+                dom.uploadZone.classList.remove('drag-over');
+            });
+            dom.uploadZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dom.uploadZone.classList.remove('drag-over');
+                if (e.dataTransfer.files.length > 0) addImages(Array.from(e.dataTransfer.files));
+            });
+            dom.uploadZone.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    dom.fileInput.click();
+                }
+            });
+
+            // Quality slider
+            dom.qualitySlider.addEventListener('input', () => {
+                state.quality = parseInt(dom.qualitySlider.value);
+                dom.qualityDisplay.textContent = state.quality + '%';
+                reprocessAllDebounced();
+            });
+
+            // Format
+            dom.formatSelect.addEventListener('change', () => {
+                state.format = dom.formatSelect.value;
+                reprocessAllDebounced();
+            });
+
+            // Resize
+            dom.resizeSelect.addEventListener('change', () => {
+                state.resizeMode = dom.resizeSelect.value;
+                if (state.resizeMode === 'custom') {
+                    dom.customResizeFields.style.display = '';
+                } else {
+                    dom.customResizeFields.style.display = 'none';
+                }
+                reprocessAllDebounced();
+            });
+            dom.customWidth.addEventListener('input', () => {
+                state.customWidth = dom.customWidth.value;
+                if (state.preserveAspect && state.customWidth && state.images.length > 0) {
+                    const img = state.images[0];
+                    const origW = img.cropData?.active ? img.cropData.w : (img.width || 1920);
+                    const origH = img.cropData?.active ? img.cropData.h : (img.height || 1080);
+                    if (origW > 0) {
+                        const calcH = Math.round(parseInt(state.customWidth) * origH / origW);
+                        dom.customHeight.value = calcH;
+                        state.customHeight = calcH;
+                    }
+                }
+                reprocessAllDebounced();
+            });
+            dom.customHeight.addEventListener('input', () => {
+                state.customHeight = dom.customHeight.value;
+                if (state.preserveAspect && state.customHeight && state.images.length > 0) {
+                    const img = state.images[0];
+                    const origW = img.cropData?.active ? img.cropData.w : (img.width || 1920);
+                    const origH = img.cropData?.active ? img.cropData.h : (img.height || 1080);
+                    if (origH > 0) {
+                        const calcW = Math.round(parseInt(state.customHeight) * origW / origH);
+                        dom.customWidth.value = calcW;
+                        state.customWidth = calcW;
+                    }
+                }
+                reprocessAllDebounced();
+            });
+            dom.preserveAspect.addEventListener('change', () => {
+                state.preserveAspect = dom.preserveAspect.checked;
+            });
+
+            // Watermark mode tabs
+            dom.wmModeTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const mode = tab.getAttribute('data-wm-mode');
+                    setWatermarkMode(mode);
+                });
+            });
+
+            // Watermark text fields
+            dom.wmText.addEventListener('input', () => {
+                state.wmText = dom.wmText.value;
+                reprocessAllDebounced();
+            });
+            dom.wmFont.addEventListener('change', () => {
+                state.wmFont = dom.wmFont.value;
+                reprocessAllDebounced();
+            });
+            dom.wmFontSize.addEventListener('input', () => {
+                state.wmFontSize = parseInt(dom.wmFontSize.value) || 36;
+                reprocessAllDebounced();
+            });
+            dom.wmColor.addEventListener('input', () => {
+                state.wmColor = dom.wmColor.value;
+                reprocessAllDebounced();
+            });
+            dom.wmBold.addEventListener('change', () => {
+                state.wmBold = dom.wmBold.checked;
+                reprocessAllDebounced();
+            });
+            dom.wmItalic.addEventListener('change', () => {
+                state.wmItalic = dom.wmItalic.checked;
+                reprocessAllDebounced();
+            });
+            dom.wmOpacity.addEventListener('input', () => {
+                state.wmOpacity = parseInt(dom.wmOpacity.value);
+                dom.wmOpacityVal.textContent = state.wmOpacity;
+                reprocessAllDebounced();
+            });
+            dom.wmRotation.addEventListener('input', () => {
+                state.wmRotation = parseInt(dom.wmRotation.value);
+                dom.wmRotationVal.textContent = state.wmRotation;
+                reprocessAllDebounced();
+            });
+            dom.wmPosition.addEventListener('change', () => {
+                state.wmPosition = dom.wmPosition.value;
+                reprocessAllDebounced();
+            });
+            dom.wmSizePercent.addEventListener('input', () => {
+                state.wmSizePercent = parseInt(dom.wmSizePercent.value);
+                dom.wmSizeVal.textContent = state.wmSizePercent;
+                reprocessAllDebounced();
+            });
+            dom.wmImageUpload.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        state.wmImageDataUrl = reader.result;
+                        state.wmImageBlob = file;
+                        showToast('Watermark logo loaded.', 'success');
+                        reprocessAllDebounced();
+                    };
+                    reader.readAsDataURL(file);
+                }
+                dom.wmImageUpload.value = '';
+            });
+
+            // Action buttons
+            dom.compressAllBtn.addEventListener('click', compressAll);
+            dom.clearAllBtn.addEventListener('click', clearAll);
+
+            // Crop modal
+            dom.cropModalClose.addEventListener('click', () => closeCropEditor(false));
+            dom.cropCancelBtn.addEventListener('click', () => closeCropEditor(false));
+            dom.cropSaveBtn.addEventListener('click', () => closeCropEditor(true));
+            dom.cropRotateBtn.addEventListener('click', cropRotate);
+            dom.cropFlipHBtn.addEventListener('click', cropFlipH);
+            dom.cropFlipVBtn.addEventListener('click', cropFlipV);
+            dom.cropResetBtn.addEventListener('click', cropReset);
+            dom.cropModalOverlay.addEventListener('click', (e) => {
+                if (e.target === dom.cropModalOverlay) closeCropEditor(false);
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && !dom.cropModalOverlay.classList.contains('hidden')) {
+                    closeCropEditor(false);
+                }
+            });
+
+            // Crop preset buttons (delegated)
+            dom.cropModalOverlay.addEventListener('click', (e) => {
+                const btn = e.target.closest('.crop-preset-btn');
+                if (btn) {
+                    const preset = btn.getAttribute('data-preset');
+                    cropSetPreset(preset);
+                }
+            });
+
+            // Confirm dialog
+            dom.confirmCancelBtn.addEventListener('click', () => {
+                dom.confirmOverlay.classList.add('hidden');
+            });
+            dom.confirmOverlay.addEventListener('click', (e) => {
+                if (e.target === dom.confirmOverlay) dom.confirmOverlay.classList.add('hidden');
+            });
+
+            // Keyboard shortcut for closing confirm
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && !dom.confirmOverlay.classList.contains('hidden')) {
+                    dom.confirmOverlay.classList.add('hidden');
+                }
+            });
+
+            // ──────────────────────────── INIT ────────────────────────────
+            function init() {
+                initTheme();
+                updateWatermarkUIMode();
+                dom.qualityDisplay.textContent = state.quality + '%';
+                dom.wmOpacityVal.textContent = state.wmOpacity;
+                dom.wmRotationVal.textContent = state.wmRotation;
+                dom.wmSizeVal.textContent = state.wmSizePercent;
+                renderAllCards();
+                updateStatistics();
+                dom.progressBarWrap.style.display = 'none';
+                dom.progressText.style.display = 'none';
+            }
+
+            init();
+            console.log('✅ Image Compressor Pro initialized successfully.');
+        })();
+    </script>
+</body>
+</html>
