@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Justifier & Content Formatter</title>
+    <style>
+        :root {
+            --primary-deep: #880e4f;
+            --primary: #ad1457;
+            --primary-medium: #c2185b;
+            --primary-light: #e91e63;
+            --accent: #f06292;
+            --accent-light: #f8bbd0;
+            --bg-start: #fce4ec;
+            --bg-end: #fff5f8;
+            --card-bg: #ffffff;
+            --text: #2c1b22;
+            --text-secondary: #5c4a52;
+            --text-muted: #8a7a82;
+            --border: #f0d4df;
+            --border-light: #f8e5ed;
+            --shadow-sm: 0 1px 3px rgba(136, 14, 79, 0.06), 0 1px 2px rgba(136, 14, 79, 0.04);
+            --shadow-md: 0 4px 16px rgba(136, 14, 79, 0.08), 0 2px 6px rgba(136, 14, 79, 0.05);
+            --shadow-lg: 0 8px 32px rgba(136, 14, 79, 0.10), 0 3px 10px rgba(136, 14, 79, 0.06);
+            --shadow-pink: 0 4px 20px rgba(173, 20, 87, 0.13), 0 1px 4px rgba(173, 20, 87, 0.07);
+            --radius-xs: 6px;
+            --radius-sm: 10px;
+            --radius-md: 14px;
+            --radius-lg: 18px;
+            --radius-xl: 22px;
+            --transition-fast: 0.15s ease;
+            --transition-smooth: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-bounce: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            --font-mono: 'SF Mono', 'Cascadia Code', 'Consolas', 'Monaco', monospace;
+            --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background: linear-gradient(170deg, #fce4ec 0%, #fff5f8 25%, #fdf2f6 50%, #fef7fa 75%, #fce4ec 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px 16px 40px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -180px;
+            right: -120px;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(233, 30, 99, 0.06) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            animation: floatOrb 18s ease-in-out infinite;
+        }
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -160px;
+            left: -100px;
+            width: 420px;
+            height: 420px;
+            background: radial-gradient(circle, rgba(240, 98, 146, 0.05) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            animation: floatOrb 22s ease-in-out infinite reverse;
+        }
+        @keyframes floatOrb {
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+            25% {
+                transform: translate(40px, -30px) scale(1.08);
+            }
+            50% {
+                transform: translate(-20px, 25px) scale(0.94);
+            }
+            75% {
+                transform: translate(30px, 15px) scale(1.05);
+            }
+        }
+
+        .app-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 820px;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        .app-header {
+            text-align: center;
+            padding: 8px 0 4px;
+        }
+        .app-header .logo-icon {
+            display: inline-block;
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, #c2185b, #e91e63);
+            border-radius: 16px;
+            margin-bottom: 10px;
+            box-shadow: 0 6px 22px rgba(194, 24, 91, 0.3);
+            position: relative;
+            transition: transform var(--transition-bounce);
+        }
+        .app-header .logo-icon:hover {
+            transform: scale(1.06) rotate(-2deg);
+        }
+        .app-header .logo-icon::after {
+            content: 'T';
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 800;
+            font-size: 24px;
+            letter-spacing: -1px;
+        }
+        .app-header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #880e4f;
+            letter-spacing: -0.4px;
+            margin: 0;
+            line-height: 1.2;
+        }
+        .app-header .subtitle {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 400;
+            margin-top: 2px;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+        }
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 18px 14px 14px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-light);
+            transition: all var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+            cursor: default;
+        }
+        .stat-card:hover {
+            box-shadow: var(--shadow-pink);
+            transform: translateY(-2px);
+            border-color: var(--accent-light);
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+        .stat-card.words::before {
+            background: linear-gradient(90deg, #e91e63, #f06292);
+        }
+        .stat-card.chars::before {
+            background: linear-gradient(90deg, #c2185b, #e91e63);
+        }
+        .stat-card.sentences::before {
+            background: linear-gradient(90deg, #ad1457, #d81b60);
+        }
+        .stat-card.paragraphs::before {
+            background: linear-gradient(90deg, #880e4f, #c2185b);
+        }
+        .stat-card .stat-icon {
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+            display: block;
+            transition: transform var(--transition-bounce);
+        }
+        .stat-card:hover .stat-icon {
+            transform: scale(1.15);
+        }
+        .stat-card .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #880e4f;
+            letter-spacing: -0.5px;
+            line-height: 1;
+            transition: all var(--transition-fast);
+        }
+        .stat-card .stat-label {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 3px;
+        }
+
+        .section {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 22px 24px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-light);
+            transition: box-shadow var(--transition-smooth);
+        }
+        .section:hover {
+            box-shadow: var(--shadow-lg);
+        }
+        .section-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #880e4f;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+        }
+        .section-label .label-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #e91e63;
+            flex-shrink: 0;
+        }
+        .word-limit-hint {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 400;
+            margin-left: auto;
+            text-transform: none;
+            letter-spacing: 0;
+            margin-right: 8px;
+        }
+
+        .btn-clear {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 7px 14px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            border-radius: 20px;
+            cursor: pointer;
+            border: 2px solid #e91e63;
+            background: #fff;
+            color: #c2185b;
+            transition: all var(--transition-smooth);
+            font-family: var(--font-sans);
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .btn-clear:hover {
+            background: #fce4ec;
+            border-color: #c2185b;
+            box-shadow: var(--shadow-pink);
+            transform: translateY(-1px);
+        }
+        .btn-clear:active {
+            transform: scale(0.94);
+            background: #f8bbd0;
+        }
+
+        .input-textarea {
+            width: 100%;
+            min-height: 240px;
+            max-height: 520px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 16px 18px;
+            font-family: var(--font-sans);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: var(--text);
+            background: #fefbfc;
+            resize: vertical;
+            transition: all var(--transition-smooth);
+            outline: none;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03);
+        }
+        .input-textarea:focus {
+            border-color: #e91e63;
+            box-shadow: 0 0 0 4px rgba(233, 30, 99, 0.07), inset 0 1px 3px rgba(0, 0, 0, 0.03);
+            background: #fff;
+        }
+        .input-textarea::placeholder {
+            color: #c9b8bf;
+            font-style: italic;
+        }
+
+        .controls-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: flex-start;
+            justify-content: flex-start;
+        }
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            flex: 0 1 auto;
+        }
+        .control-group.alignment-group {
+            flex: 0 0 320px;
+            max-width: 100%;
+        }
+        .control-group.toggle-group-wrapper {
+            flex: 0 1 auto;
+            min-width: 180px;
+        }
+        .control-group .control-label-text {
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: #5c4a52;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .segmented-control {
+            display: flex;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            border: 2px solid var(--border);
+            background: #fefbfc;
+            box-shadow: var(--shadow-sm);
+            width: 100%;
+        }
+        .segmented-control input[type="radio"] {
+            display: none;
+        }
+        .segmented-control label {
+            flex: 1;
+            text-align: center;
+            padding: 10px 12px;
+            font-size: 0.84rem;
+            font-weight: 500;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all var(--transition-smooth);
+            user-select: none;
+            white-space: nowrap;
+            border-right: 1px solid var(--border-light);
+            letter-spacing: 0.2px;
+            position: relative;
+        }
+        .segmented-control label:last-child {
+            border-right: none;
+        }
+        .segmented-control label:hover {
+            background: #fce4ec;
+            color: #c2185b;
+        }
+        .segmented-control input[type="radio"]:checked+label {
+            background: linear-gradient(135deg, #c2185b, #d81b60);
+            color: #fff;
+            font-weight: 600;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.12);
+        }
+
+        .toggle-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .toggle-item {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 27px;
+            flex-shrink: 0;
+        }
+        .toggle-switch input {
+            display: none;
+        }
+        .toggle-switch .slider {
+            position: absolute;
+            inset: 0;
+            background: #d4c5cc;
+            border-radius: 27px;
+            cursor: pointer;
+            transition: all var(--transition-smooth);
+        }
+        .toggle-switch .slider::before {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 21px;
+            height: 21px;
+            background: #fff;
+            border-radius: 50%;
+            transition: all var(--transition-bounce);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16);
+        }
+        .toggle-switch input:checked+.slider {
+            background: linear-gradient(135deg, #c2185b, #e91e63);
+        }
+        .toggle-switch input:checked+.slider::before {
+            transform: translateX(21px);
+            box-shadow: 0 2px 8px rgba(194, 24, 91, 0.35);
+        }
+        .toggle-label-text {
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: var(--text);
+            transition: color var(--transition-fast);
+        }
+        .toggle-item:hover .toggle-label-text {
+            color: #c2185b;
+        }
+
+        .preview-container {
+            border: 2px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 20px 22px;
+            min-height: 140px;
+            max-height: 500px;
+            overflow-y: auto;
+            background: #fffdfd;
+            box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.03);
+            transition: all var(--transition-smooth);
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        .preview-container:empty::before {
+            content: 'Formatted preview will appear here...';
+            color: #c9b8bf;
+            font-style: italic;
+            pointer-events: none;
+        }
+        .preview-container h1 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: #880e4f;
+            margin: 18px 0 8px;
+            line-height: 1.3;
+            border-bottom: 2px solid #f8bbd0;
+            padding-bottom: 6px;
+        }
+        .preview-container h2 {
+            font-size: 1.35rem;
+            font-weight: 650;
+            color: #ad1457;
+            margin: 16px 0 6px;
+            line-height: 1.35;
+        }
+        .preview-container h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #c2185b;
+            margin: 12px 0 4px;
+            line-height: 1.4;
+        }
+        .preview-container p {
+            margin: 6px 0;
+            line-height: 1.7;
+            color: #2c1b22;
+        }
+        .preview-container br {
+            display: inline;
+        }
+
+        .actions-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 13px 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            border: none;
+            transition: all var(--transition-smooth);
+            letter-spacing: 0.2px;
+            white-space: nowrap;
+            font-family: var(--font-sans);
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+        }
+        .btn:active {
+            transform: scale(0.96);
+        }
+        .btn-outline {
+            background: #fff;
+            color: #c2185b;
+            border: 2px solid #e91e63;
+            box-shadow: var(--shadow-sm);
+        }
+        .btn-outline:hover {
+            background: #fce4ec;
+            border-color: #c2185b;
+            box-shadow: var(--shadow-pink);
+            transform: translateY(-1px);
+        }
+        .btn-filled {
+            background: linear-gradient(135deg, #c2185b, #d81b60);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(194, 24, 91, 0.28);
+        }
+        .btn-filled:hover {
+            background: linear-gradient(135deg, #ad1457, #c2185b);
+            box-shadow: 0 6px 20px rgba(173, 20, 87, 0.35);
+            transform: translateY(-2px);
+        }
+        .btn .btn-icon {
+            font-size: 1.05rem;
+            flex-shrink: 0;
+        }
+        .btn.copied-flash {
+            animation: copyFlash 0.6s ease;
+        }
+        @keyframes copyFlash {
+            0%,
+            100% {
+                background: #fff;
+                color: #c2185b;
+            }
+            30% {
+                background: #e8f5e9;
+                color: #2e7d32;
+                border-color: #4caf50;
+            }
+            70% {
+                background: #e8f5e9;
+                color: #2e7d32;
+                border-color: #4caf50;
+            }
+        }
+        .btn-filled.copied-flash {
+            animation: copyFlashFilled 0.6s ease;
+        }
+        @keyframes copyFlashFilled {
+            0%,
+            100% {
+                background: linear-gradient(135deg, #c2185b, #d81b60);
+                color: #fff;
+            }
+            30% {
+                background: #2e7d32;
+                color: #fff;
+            }
+            70% {
+                background: #2e7d32;
+                color: #fff;
+            }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #2c1b22;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transition: all var(--transition-bounce);
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25);
+            letter-spacing: 0.3px;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+        .toast.success {
+            background: #2e7d32;
+        }
+
+        @media (max-width: 768px) {
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            .stat-card {
+                padding: 14px 10px;
+            }
+            .stat-card .stat-value {
+                font-size: 1.6rem;
+            }
+            .stat-card .stat-icon {
+                font-size: 1.2rem;
+            }
+            .actions-row {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            .controls-row {
+                flex-direction: column;
+                gap: 14px;
+            }
+            .control-group.alignment-group {
+                flex: 0 0 auto;
+                width: 100%;
+                max-width: 100%;
+            }
+            .control-group.toggle-group-wrapper {
+                flex: 0 0 auto;
+                width: 100%;
+            }
+            .segmented-control label {
+                padding: 9px 8px;
+                font-size: 0.78rem;
+            }
+            .section {
+                padding: 16px 14px;
+            }
+            .input-textarea {
+                min-height: 200px;
+                font-size: 0.9rem;
+            }
+            .app-header h1 {
+                font-size: 1.4rem;
+            }
+            .preview-container {
+                padding: 14px;
+                max-height: 380px;
+            }
+            .btn {
+                padding: 11px 12px;
+                font-size: 0.8rem;
+            }
+            .btn-clear {
+                padding: 6px 12px;
+                font-size: 0.73rem;
+            }
+            .section-label {
+                gap: 6px;
+            }
+        }
+        @media (max-width: 420px) {
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            .stat-card {
+                padding: 10px 6px;
+            }
+            .stat-card .stat-value {
+                font-size: 1.35rem;
+            }
+            .stat-card .stat-label {
+                font-size: 0.68rem;
+            }
+            .actions-row {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            .segmented-control label {
+                padding: 8px 5px;
+                font-size: 0.72rem;
+            }
+            .btn {
+                padding: 10px 8px;
+                font-size: 0.75rem;
+                gap: 4px;
+            }
+            .btn .btn-icon {
+                font-size: 0.9rem;
+            }
+            .section {
+                padding: 12px 10px;
+            }
+            .input-textarea {
+                min-height: 170px;
+                padding: 12px;
+            }
+            .btn-clear {
+                padding: 5px 10px;
+                font-size: 0.7rem;
+            }
+            .section-label {
+                font-size: 0.78rem;
+            }
+            .word-limit-hint {
+                font-size: 0.68rem;
+                margin-right: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="logo-icon"></div>
+            <h1>Text Justifier &amp; Content Formatter</h1>
+            <p class="subtitle">Format, align, and structure your text beautifully</p>
+        </header>
+
+        <div class="stats-row" id="statsRow">
+            <div class="stat-card words">
+                <span class="stat-icon">📝</span>
+                <span class="stat-value" id="wordCount">0</span>
+                <span class="stat-label">Words</span>
+            </div>
+            <div class="stat-card chars">
+                <span class="stat-icon">✍️</span>
+                <span class="stat-value" id="charCount">0</span>
+                <span class="stat-label">Characters</span>
+            </div>
+            <div class="stat-card sentences">
+                <span class="stat-icon">📄</span>
+                <span class="stat-value" id="sentenceCount">0</span>
+                <span class="stat-label">Sentences</span>
+            </div>
+            <div class="stat-card paragraphs">
+                <span class="stat-icon">📑</span>
+                <span class="stat-value" id="paragraphCount">0</span>
+                <span class="stat-label">Paragraphs</span>
+            </div>
+        </div>
+
+        <div class="section" id="inputSection">
+            <div class="section-label">
+                <span class="label-dot"></span> Input Text
+                <span class="word-limit-hint">up to ~5000 words</span>
+                <button class="btn-clear" id="clearBtn" title="Clear all text">🗑️ Clear All</button>
+            </div>
+            <textarea class="input-textarea" id="inputTextarea" placeholder="Type or paste your text here to get started..." aria-label="Input text area"></textarea>
+        </div>
+
+        <div class="section" id="controlsSection">
+            <div class="controls-row">
+                <div class="control-group alignment-group">
+                    <span class="control-label-text">Text Alignment</span>
+                    <div class="segmented-control" id="alignmentGroup">
+                        <input type="radio" name="textAlign" id="alignJustify" value="justify" checked>
+                        <label for="alignJustify" title="Justify">Justify</label>
+                        <input type="radio" name="textAlign" id="alignLeft" value="left">
+                        <label for="alignLeft" title="Left">Left</label>
+                        <input type="radio" name="textAlign" id="alignCenter" value="center">
+                        <label for="alignCenter" title="Center">Center</label>
+                        <input type="radio" name="textAlign" id="alignRight" value="right">
+                        <label for="alignRight" title="Right">Right</label>
+                    </div>
+                </div>
+                <div class="control-group toggle-group-wrapper">
+                    <span class="control-label-text">Formatting Options</span>
+                    <div class="toggle-group">
+                        <label class="toggle-item" for="autoHeadingToggle">
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="autoHeadingToggle" checked>
+                                <span class="slider"></span>
+                            </div>
+                            <span class="toggle-label-text">Auto Heading Structure</span>
+                        </label>
+                        <label class="toggle-item" for="preserveBreaksToggle">
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="preserveBreaksToggle" checked>
+                                <span class="slider"></span>
+                            </div>
+                            <span class="toggle-label-text">Preserve Line Breaks</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="previewSection">
+            <div class="section-label">
+                <span class="label-dot"></span> Live Preview
+            </div>
+            <div class="preview-container" id="previewContainer"></div>
+        </div>
+
+        <div class="actions-row" id="actionsRow">
+            <button class="btn btn-outline" id="copyHtmlBtn" title="Copy formatted HTML to clipboard">
+                <span class="btn-icon">📋</span> Copy as HTML
+            </button>
+            <button class="btn btn-outline" id="copyTextBtn" title="Copy formatted plain text from Live Preview">
+                <span class="btn-icon">📝</span> Copy Output Text
+            </button>
+            <button class="btn btn-filled" id="downloadTxtBtn" title="Download formatted text as .txt file">
+                <span class="btn-icon">⬇️</span> Download TXT
+            </button>
+            <button class="btn btn-filled" id="downloadHtmlBtn" title="Download as .html file">
+                <span class="btn-icon">⬇️</span> Download HTML
+            </button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        (function() {
+            // DOM References
+            const inputTextarea = document.getElementById('inputTextarea');
+            const previewContainer = document.getElementById('previewContainer');
+            const wordCountEl = document.getElementById('wordCount');
+            const charCountEl = document.getElementById('charCount');
+            const sentenceCountEl = document.getElementById('sentenceCount');
+            const paragraphCountEl = document.getElementById('paragraphCount');
+            const alignmentGroup = document.getElementById('alignmentGroup');
+            const autoHeadingToggle = document.getElementById('autoHeadingToggle');
+            const preserveBreaksToggle = document.getElementById('preserveBreaksToggle');
+            const copyHtmlBtn = document.getElementById('copyHtmlBtn');
+            const copyTextBtn = document.getElementById('copyTextBtn');
+            const downloadTxtBtn = document.getElementById('downloadTxtBtn');
+            const downloadHtmlBtn = document.getElementById('downloadHtmlBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const toast = document.getElementById('toast');
+
+            let currentAlignment = 'justify';
+            let autoHeadingEnabled = true;
+            let preserveBreaksEnabled = true;
+            let latestHtmlOutput = '';
+            let toastTimer = null;
+
+            function escapeHtml(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            function showToast(message, isSuccess = true) {
+                if (toastTimer) clearTimeout(toastTimer);
+                toast.textContent = message;
+                toast.className = 'toast ' + (isSuccess ? 'success' : '');
+                void toast.offsetWidth;
+                toast.classList.add('show');
+                toastTimer = setTimeout(() => {
+                    toast.classList.remove('show');
+                    toast.className = 'toast';
+                    toastTimer = null;
+                }, 2000);
+            }
+
+            function flashButton(btn) {
+                btn.classList.add(btn.classList.contains('btn-filled') ? 'copied-flash' : 'copied-flash');
+                setTimeout(() => btn.classList.remove('copied-flash'), 650);
+            }
+
+            function updateStatistics(text) {
+                const words = text.trim() ? text.trim().split(/\s+/).filter(w => w.length > 0) : [];
+                wordCountEl.textContent = words.length;
+                charCountEl.textContent = text.length;
+                const sentenceMatches = text.match(/[^.!?]+[.!?]+/g);
+                sentenceCountEl.textContent = sentenceMatches ? sentenceMatches.length : (text.trim().length > 0 ? 1 :
+                    0);
+                const paragraphs = text.split(/\n\s*\n/).filter(p => p.trim().length > 0);
+                paragraphCountEl.textContent = paragraphs.length;
+                [wordCountEl, charCountEl, sentenceCountEl, paragraphCountEl].forEach(el => {
+                    el.style.transform = 'scale(1.08)';
+                    setTimeout(() => { el.style.transform = 'scale(1)'; }, 150);
+                });
+            }
+
+            function isHeadingLine(line) {
+                const trimmed = line.trim();
+                if (!trimmed) return { isHeading: false, level: 0 };
+                const len = trimmed.length;
+                const allCapsPattern = /^[A-Z\s\d\p{P}]+$/u;
+                const isAllCaps = allCapsPattern.test(trimmed) && /[A-Z]{3,}/.test(trimmed);
+                if (isAllCaps && len >= 6 && len <= 120) {
+                    const wordCount = trimmed.split(/\s+/).filter(w => w.length > 1).length;
+                    if (len <= 45 && wordCount <= 6) return { isHeading: true, level: 1 };
+                    if (len <= 80) return { isHeading: true, level: 2 };
+                    return { isHeading: true, level: 3 };
+                }
+                const topLevelPattern = /^(Chapter|Part|Module|Unit|Lesson|Book|Volume)\s*[\d:.]*\s*/i;
+                const sectionPattern = /^(Section|Topic|Theme|Stage|Phase|Step)\s*[\d:.]*\s*/i;
+                if (topLevelPattern.test(trimmed) && len <= 100) return { isHeading: true, level: 1 };
+                if (sectionPattern.test(trimmed) && len <= 100) return { isHeading: true, level: 2 };
+                const numberedPattern = /^(\d+\.\d+\.\d+|\d+\.\d+|\d+\.|[IVX]+\.|[A-Z]\.)\s+\w{2,}/;
+                if (numberedPattern.test(trimmed) && len <= 90) {
+                    const depth = (trimmed.match(/\./g) || []).length;
+                    if (depth >= 2) return { isHeading: true, level: 3 };
+                    if (depth === 1 && /^\d+\.\d+/.test(trimmed)) return { isHeading: true, level: 2 };
+                    return { isHeading: true, level: 2 };
+                }
+                const hasSentenceEnd = /[.!?]$/.test(trimmed);
+                const hasColonEnd = /:$/.test(trimmed);
+                const wordCount = trimmed.split(/\s+/).filter(w => w.length > 1).length;
+                if (!hasSentenceEnd && len <= 65 && wordCount >= 2 && wordCount <= 10) {
+                    if (hasColonEnd) return { isHeading: true, level: 3 };
+                    const titleCaseRatio = trimmed.split(/\s+/).filter(w =>
+                        w.length > 1 && /^[A-Z]/.test(w) && !/^[A-Z]{2,}$/.test(w)
+                    ).length / Math.max(wordCount, 1);
+                    if (titleCaseRatio >= 0.5 && wordCount <= 8) return { isHeading: true, level: 3 };
+                }
+                if (isAllCaps && len >= 3 && len <= 50 && trimmed.split(/\s+/).length <= 4) return { isHeading: true,
+                    level: 1 };
+                return { isHeading: false, level: 0 };
+            }
+
+            function formatTextToHtml(text, alignment, autoHeading, preserveBreaks) {
+                if (!text.trim()) return { html: '', plain: '' };
+                const lines = text.split(/\n/);
+                const processedBlocks = [];
+                let currentParagraphLines = [];
+                let plainOutputLines = [];
+
+                function flushParagraph() {
+                    if (currentParagraphLines.length === 0) return;
+                    const paraText = currentParagraphLines.join(' ');
+                    processedBlocks.push({ type: 'paragraph', html: `<p>${escapeHtml(paraText)}</p>`, plain: paraText });
+                    plainOutputLines.push(paraText);
+                    currentParagraphLines = [];
+                }
+
+                function addHeadingBlock(line, level) {
+                    const escaped = escapeHtml(line.trim());
+                    const tag = 'h' + Math.min(level, 3);
+                    processedBlocks.push({ type: 'heading', html: `<${tag}>${escaped}</${tag}>`, plain: line.trim() });
+                    plainOutputLines.push(line.trim());
+                }
+
+                for (let i = 0; i < lines.length; i++) {
+                    const rawLine = lines[i];
+                    const trimmedLine = rawLine.trim();
+                    if (trimmedLine === '') {
+                        flushParagraph();
+                        plainOutputLines.push('');
+                        continue;
+                    }
+                    if (autoHeading) {
+                        const headingResult = isHeadingLine(rawLine);
+                        if (headingResult.isHeading) {
+                            flushParagraph();
+                            addHeadingBlock(rawLine, headingResult.level);
+                            continue;
+                        }
+                    }
+                    if (preserveBreaks) {
+                        const escaped = escapeHtml(trimmedLine);
+                        processedBlocks.push({ type: 'line', html: `<span>${escaped}</span><br>`, plain: trimmedLine });
+                        plainOutputLines.push(trimmedLine);
+                    } else {
+                        currentParagraphLines.push(trimmedLine);
+                    }
+                }
+                if (!preserveBreaks) flushParagraph();
+
+                let htmlBody = processedBlocks.map(b => b.html).join('\n');
+                htmlBody = htmlBody.replace(/(<br>\s*)+$/, '');
+                const wrappedHtml = `<div style="text-align: ${alignment};">\n${htmlBody}\n</div>`;
+
+                let plainOutput = plainOutputLines.join('\n');
+                plainOutput = plainOutput.replace(/\n{3,}/g, '\n\n');
+                plainOutput = plainOutput.trim();
+
+                return { html: wrappedHtml, plain: plainOutput };
+            }
+
+            function updatePreview() {
+                const text = inputTextarea.value;
+                const result = formatTextToHtml(text, currentAlignment, autoHeadingEnabled, preserveBreaksEnabled);
+                latestHtmlOutput = result.html;
+
+                if (result.html) {
+                    const innerMatch = result.html.match(/<div style="text-align:\s*[^"]*;">\n?([\s\S]*?)\n?<\/div>/);
+                    const innerHtml = innerMatch ? innerMatch[1] : result.html;
+                    previewContainer.innerHTML = innerHtml;
+                    previewContainer.style.textAlign = currentAlignment;
+                } else {
+                    previewContainer.innerHTML = '';
+                    previewContainer.style.textAlign = currentAlignment;
+                }
+                updateStatistics(text);
+            }
+
+            inputTextarea.addEventListener('input', updatePreview);
+
+            clearBtn.addEventListener('click', function() {
+                inputTextarea.value = '';
+                updatePreview();
+                inputTextarea.focus();
+                showToast('✅ Text cleared!');
+            });
+
+            alignmentGroup.addEventListener('change', function(e) {
+                if (e.target.name === 'textAlign') {
+                    currentAlignment = e.target.value;
+                    updatePreview();
+                }
+            });
+
+            autoHeadingToggle.addEventListener('change', function() {
+                autoHeadingEnabled = this.checked;
+                updatePreview();
+            });
+
+            preserveBreaksToggle.addEventListener('change', function() {
+                preserveBreaksEnabled = this.checked;
+                updatePreview();
+            });
+
+            // ========== COPY & DOWNLOAD (FINAL GUARANTEED FIX) ==========
+            copyHtmlBtn.addEventListener('click', async function() {
+                try {
+                    const fullHtml = latestHtmlOutput ||
+                        `<div style="text-align: ${currentAlignment};"></div>`;
+                    await navigator.clipboard.writeText(fullHtml);
+                    flashButton(copyHtmlBtn);
+                    showToast('✅ HTML copied!');
+                } catch (err) {
+                    showToast('⚠️ Failed to copy HTML', false);
+                }
+            });
+
+            // 🔥 THIS IS THE KEY FIX: Copy exactly what's visible in Live Preview
+            copyTextBtn.addEventListener('click', async function() {
+                try {
+                    // Directly read the rendered text from preview container
+                    const formattedText = previewContainer.innerText || '';
+                    await navigator.clipboard.writeText(formattedText);
+                    flashButton(copyTextBtn);
+                    showToast('✅ Formatted output text copied!');
+                } catch (err) {
+                    showToast('⚠️ Failed to copy text', false);
+                }
+            });
+
+            // 🔥 Download TXT also uses preview text
+            downloadTxtBtn.addEventListener('click', function() {
+                const formattedText = previewContainer.innerText || '';
+                const blob = new Blob([formattedText], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'formatted-output.txt';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                flashButton(downloadTxtBtn);
+                showToast('✅ Downloaded TXT!');
+            });
+
+            downloadHtmlBtn.addEventListener('click', function() {
+                const fullHtml = latestHtmlOutput ||
+                    `<div style="text-align: ${currentAlignment};"></div>`;
+                const htmlDocument = `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Formatted Output</title>
+        <style>
+            body { font-family: 'Inter', system-ui, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; line-height: 1.7; color: #2c1b22; background: #fff; }
+            h1 { font-size: 1.7rem; color: #880e4f; border-bottom: 2px solid #f8bbd0; padding-bottom: 6px; }
+            h2 { font-size: 1.35rem; color: #ad1457; }
+            h3 { font-size: 1.1rem; color: #c2185b; }
+            p { margin: 6px 0; }
+        </style>
+        </head>
+        <body>${fullHtml}</body>
+        </html>`;
+                const blob = new Blob([htmlDocument], { type: 'text/html;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'formatted-output.html';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                flashButton(downloadHtmlBtn);
+                showToast('✅ Downloaded HTML!');
+            });
+
+            // Initial setup
+            const checkedRadio = alignmentGroup.querySelector('input[name="textAlign"]:checked');
+            if (checkedRadio) currentAlignment = checkedRadio.value;
+            autoHeadingEnabled = autoHeadingToggle.checked;
+            preserveBreaksEnabled = preserveBreaksToggle.checked;
+            updatePreview();
+            previewContainer.style.textAlign = currentAlignment;
+        })();
+    </script>
+</body>
+</html>
