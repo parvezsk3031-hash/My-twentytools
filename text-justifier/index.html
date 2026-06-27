@@ -3,727 +3,1756 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Premium Text Justifier & Content Formatter</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>Text Justifier & Content Formatter Tool</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
         :root {
-            --primary: #E91E63;
-            --primary-dark: #C2185B;
-            --primary-light: #F8BBD0;
-            --gradient: linear-gradient(135deg, #E91E63 0%, #9C27B0 100%);
-            --bg: #FCE4EC;
-            --surface: #FFFFFF;
-            --text: #2C3E50;
-            --text-muted: #7F8C8D;
-            --border: #E0E0E0;
-            --radius: 12px;
-            --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-            --transition: all 0.3s ease;
+            --pink-50: #fce4ec;
+            --pink-100: #f8bbd0;
+            --pink-200: #f48fb1;
+            --pink-300: #f06292;
+            --pink-400: #ec407a;
+            --pink-500: #e91e63;
+            --pink-600: #d81b60;
+            --pink-700: #c2185b;
+            --pink-800: #ad1457;
+            --pink-900: #880e4f;
+            --surface: #ffffff;
+            --surface-alt: #fafafa;
+            --bg: #f5f0f2;
+            --text: #1a1a2e;
+            --text-secondary: #555;
+            --text-muted: #777;
+            --border: #e8dee2;
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+            --shadow: 0 4px 16px rgba(0, 0, 0, 0.07), 0 2px 6px rgba(0, 0, 0, 0.04);
+            --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.10), 0 4px 12px rgba(0, 0, 0, 0.05);
+            --radius-xs: 6px;
+            --radius-sm: 10px;
+            --radius: 14px;
+            --radius-lg: 18px;
+            --radius-xl: 22px;
+            --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --font-mono: 'SF Mono', 'Cascadia Code', 'Consolas', 'Monaco', 'Courier New', monospace;
+            --font-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Inter', sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
         }
 
         body {
-            background-color: var(--bg);
+            font-family: var(--font-sans);
+            background: var(--bg);
             color: var(--text);
             line-height: 1.6;
-            padding: 15px;
             min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        .container {
-            max-width: 1000px; /* Linear workflow ke liye standard reading max-width */
-            margin: 0 auto;
-        }
-
-        /* Compact Header */
-        header {
-            background: var(--gradient);
-            color: white;
-            padding: 18px 20px;
-            border-radius: var(--radius);
-            margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(233, 30, 99, 0.2);
-            text-align: center;
-        }
-
-        header h1 {
-            font-size: 1.6rem;
-            font-weight: 700;
-            margin-bottom: 4px;
+        /* Header */
+        .app-header {
+            background: linear-gradient(135deg, #c2185b 0%, #e91e63 30%, #d81b60 60%, #ad1457 100%);
+            color: #fff;
+            padding: 18px 28px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 10px;
+            gap: 14px;
+            flex-wrap: wrap;
+            box-shadow: 0 4px 20px rgba(233, 30, 99, 0.25);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.15);
         }
-
-        header p {
-            font-size: 0.9rem;
+        .app-header .logo-icon {
+            font-size: 2rem;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+            animation: pulse-icon 3s ease-in-out infinite;
+        }
+        @keyframes pulse-icon {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.12);
+            }
+        }
+        .app-header h1 {
+            font-size: 1.55rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            line-height: 1.2;
+        }
+        .app-header .subtitle {
+            font-size: 0.82rem;
             opacity: 0.9;
+            font-weight: 400;
+            letter-spacing: 0.3px;
         }
 
-        /* 1. Live Statistics Dashboard */
-        .stats-grid {
+        /* Main Container */
+        .main-container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 20px 22px 32px;
+        }
+
+        /* Stats Row */
+        .stats-row {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 18px;
         }
-
         .stat-card {
             background: var(--surface);
-            padding: 15px 20px;
             border-radius: var(--radius);
-            box-shadow: var(--shadow);
+            padding: 16px 18px;
+            box-shadow: var(--shadow-sm);
             display: flex;
             align-items: center;
-            gap: 15px;
-            border-left: 5px solid var(--primary);
+            gap: 13px;
             transition: var(--transition);
+            border: 1px solid var(--border);
+            cursor: default;
         }
-
+        .stat-card:hover {
+            box-shadow: var(--shadow);
+            transform: translateY(-2px);
+            border-color: var(--pink-200);
+        }
         .stat-icon {
-            background: var(--bg);
-            color: var(--primary);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-sm);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.1rem;
+            font-size: 1.25rem;
+            flex-shrink: 0;
         }
-
-        .stat-info h3 {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--text);
+        .stat-icon.words {
+            background: #fce4ec;
+            color: #e91e63;
         }
-
-        .stat-info p {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+        .stat-icon.chars {
+            background: #f3e5f5;
+            color: #7b1fa2;
         }
-
-        /* Panels (Input & Preview Linear Sequence) */
-        .panel {
-            background: var(--surface);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
+        .stat-icon.sentences {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .stat-icon.paragraphs {
+            background: #fff3e0;
+            color: #e65100;
+        }
+        .stat-info {
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-            border: 1px solid rgba(233, 30, 99, 0.1);
-            margin-bottom: 20px;
         }
-
-        .panel-header {
-            background: #FAFAFA;
-            padding: 12px 15px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: 600;
-            color: var(--text);
-            font-size: 0.9rem;
-        }
-
-        .panel-body {
-            position: relative;
-            height: 320px; /* Linear workflow scroll balance optimized height */
-        }
-
-        .editor-textarea {
-            width: 100%;
-            height: 100%;
-            border: none;
-            padding: 15px;
-            font-size: 0.95rem;
-            color: var(--text);
-            resize: vertical;
-            outline: none;
-            line-height: 1.6;
-            background: transparent;
-        }
-
-        .preview-container {
-            width: 100%;
-            height: 100%;
-            padding: 15px;
-            overflow-y: auto;
-            background: white;
-            word-wrap: break-word;
-            font-size: 0.95rem;
-        }
-
-        .preview-container.align-justify { text-align: justify; text-justify: inter-word; }
-        .preview-container.align-left { text-align: left; }
-        .preview-container.align-center { text-align: center; }
-        .preview-container.align-right { text-align: right; }
-
-        .preview-container h1, 
-        .preview-container h2, 
-        .preview-container h3, 
-        .preview-container h4 {
-            color: #111111;
-            margin-top: 1.2rem;
-            margin-bottom: 0.6rem;
+        .stat-value {
+            font-size: 1.5rem;
             font-weight: 700;
-            line-height: 1.3;
+            letter-spacing: -0.3px;
+            color: var(--text);
+            line-height: 1;
         }
-        .preview-container h1 { font-size: 1.8rem; border-bottom: 2px solid var(--bg); padding-bottom: 5px;}
-        .preview-container h2 { font-size: 1.4rem; }
-        .preview-container h3 { font-size: 1.2rem; }
-        .preview-container h4 { font-size: 1.05rem; }
-        .preview-container p { margin-bottom: 1rem; }
+        .stat-label {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            letter-spacing: 0.2px;
+        }
 
-        /* Control Cards Section Ordering Rules */
-        .control-card {
+        /* Action Cards Row */
+        .action-cards-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+        .action-card {
             background: var(--surface);
-            padding: 15px;
             border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            margin-bottom: 20px;
+            padding: 16px 18px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            transition: var(--transition);
         }
-
-        .control-card h2 {
-            font-size: 0.9rem;
-            color: var(--primary-dark);
-            margin-bottom: 12px;
+        .action-card:hover {
+            box-shadow: var(--shadow);
+        }
+        .action-card h3 {
+            font-size: 0.85rem;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.6px;
+            color: var(--pink-700);
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            border-bottom: 2px solid var(--bg);
-            padding-bottom: 6px;
+            gap: 7px;
         }
-
+        .action-card h3 i {
+            font-size: 0.9rem;
+        }
         .btn-group {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 7px;
         }
-
         .btn {
-            background: #F8F9FA;
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 8px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 0.85rem;
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            transition: var(--transition);
-        }
-
-        .btn:hover {
-            background: var(--bg);
-            color: var(--primary-dark);
-            border-color: var(--primary-light);
-        }
-
-        .btn.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-            box-shadow: 0 4px 12px rgba(233, 30, 99, 0.3);
-        }
-
-        /* Toggle Config Modules Block Layouts */
-        .toggle-group-block {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .toggle-card {
-            background: var(--surface);
-            padding: 15px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .toggle-label {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .toggle-label span {
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
             font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .toggle-label small {
-            color: var(--text-muted);
-            font-size: 0.75rem;
-        }
-
-        /* Switch Styling */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 46px;
-            height: 24px;
-            flex-shrink: 0;
-        }
-
-        .switch input { opacity: 0; width: 0; height: 0; }
-
-        .slider {
-            position: absolute;
             cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 34px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px; width: 16px;
-            left: 4px; bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked + .slider { background-color: var(--primary); }
-        input:checked + .slider:before { transform: translateX(22px); }
-
-        /* Final Action Asset Bar Custom Flex Wrapping Box */
-        .action-asset-bar {
-            background: var(--surface);
-            padding: 15px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .action-asset-bar .btn {
-            flex: 1 1 auto;
-            justify-content: center;
+            border: 2px solid transparent;
+            transition: var(--transition);
             white-space: nowrap;
+            letter-spacing: 0.2px;
+            font-family: var(--font-sans);
+            outline: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
-
-        /* Responsive Fix adjustments */
-        @media (max-width: 768px) {
-            header { padding: 12px 10px; }
-            header h1 { font-size: 1.25rem; }
-            header p { font-size: 0.8rem; }
-            .panel-body { height: 260px; }
-        }
-
-        *:focus-visible {
-            outline: 3px solid var(--primary-dark);
+        .btn:focus-visible {
+            outline: 3px solid var(--pink-300);
             outline-offset: 2px;
         }
+        .btn-pink {
+            background: var(--pink-500);
+            color: #fff;
+            border-color: var(--pink-500);
+        }
+        .btn-pink:hover {
+            background: var(--pink-600);
+            border-color: var(--pink-600);
+            box-shadow: 0 4px 12px rgba(233, 30, 99, 0.3);
+            transform: translateY(-1px);
+        }
+        .btn-pink.active {
+            background: var(--pink-700);
+            border-color: var(--pink-700);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+            transform: scale(0.96);
+        }
+        .btn-outline {
+            background: #fff;
+            color: var(--pink-600);
+            border-color: var(--pink-300);
+        }
+        .btn-outline:hover {
+            background: var(--pink-50);
+            border-color: var(--pink-400);
+        }
+        .btn-outline.active {
+            background: var(--pink-100);
+            border-color: var(--pink-500);
+            color: var(--pink-700);
+            font-weight: 700;
+        }
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-secondary);
+            border-color: var(--border);
+        }
+        .btn-ghost:hover {
+            background: #f5f5f5;
+            border-color: #ccc;
+        }
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.73rem;
+            border-radius: 16px;
+        }
+        .btn-xs {
+            padding: 4px 9px;
+            font-size: 0.7rem;
+            border-radius: 14px;
+        }
+        .toggle-switch-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 4px;
+        }
+        .toggle-label {
+            font-size: 0.78rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            user-select: none;
+        }
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 26px;
+            flex-shrink: 0;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+            position: absolute;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #ccc;
+            border-radius: 26px;
+            transition: var(--transition);
+        }
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background: #fff;
+            border-radius: 50%;
+            transition: var(--transition);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        .toggle-switch input:checked+.toggle-slider {
+            background: var(--pink-500);
+        }
+        .toggle-switch input:checked+.toggle-slider::before {
+            transform: translateX(18px);
+        }
+        .toggle-switch input:focus-visible+.toggle-slider {
+            outline: 3px solid var(--pink-300);
+            outline-offset: 2px;
+        }
+
+        /* Editor Layout */
+        .editor-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 18px;
+            min-height: 420px;
+        }
+        .editor-panel {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+        .editor-panel:hover {
+            box-shadow: var(--shadow-lg);
+        }
+        .panel-header {
+            padding: 13px 18px;
+            font-weight: 700;
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #fff;
+            background: linear-gradient(135deg, #c2185b, #e91e63, #d81b60);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .panel-header i {
+            font-size: 0.9rem;
+        }
+        .panel-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            position: relative;
+        }
+        .textarea-wrap {
+            flex: 1;
+            display: flex;
+            position: relative;
+        }
+        #textInput {
+            flex: 1;
+            width: 100%;
+            min-height: 380px;
+            max-height: 600px;
+            padding: 16px 18px;
+            border: none;
+            outline: none;
+            font-size: 0.9rem;
+            font-family: var(--font-sans);
+            line-height: 1.7;
+            resize: vertical;
+            background: #fdfcfd;
+            color: var(--text);
+            letter-spacing: 0.1px;
+            transition: var(--transition);
+        }
+        #textInput:focus {
+            background: #fff;
+            box-shadow: inset 0 0 0 2px var(--pink-200);
+        }
+        #textInput::placeholder {
+            color: #b0a0a8;
+            font-style: italic;
+        }
+        .line-numbers {
+            display: none;
+        }
+        .preview-content {
+            flex: 1;
+            padding: 16px 18px;
+            overflow-y: auto;
+            max-height: 600px;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            background: #fff;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            letter-spacing: 0.1px;
+            transition: text-align 0.25s ease;
+        }
+        .preview-content h1 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--pink-800);
+            margin: 8px 0 10px;
+            border-bottom: 2px solid var(--pink-200);
+            padding-bottom: 6px;
+            letter-spacing: -0.3px;
+        }
+        .preview-content h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--pink-700);
+            margin: 6px 0 8px;
+            letter-spacing: -0.2px;
+        }
+        .preview-content h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #555;
+            margin: 4px 0 6px;
+            letter-spacing: -0.1px;
+        }
+        .preview-content h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #666;
+            margin: 3px 0 5px;
+            font-style: italic;
+        }
+        .preview-content p {
+            margin: 6px 0;
+            color: var(--text);
+        }
+        .preview-content br+br {
+            display: none;
+        }
+        .empty-preview {
+            color: #c0b0b8;
+            font-style: italic;
+            text-align: center;
+            padding: 40px 20px;
+            font-size: 0.95rem;
+        }
+
+        /* Bottom Feature Cards */
+        .feature-cards-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+        .feature-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            text-align: center;
+            transition: var(--transition);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        .feature-card:hover {
+            box-shadow: var(--shadow);
+            transform: translateY(-2px);
+            border-color: var(--pink-200);
+        }
+        .feature-card i {
+            font-size: 1.6rem;
+            color: var(--pink-500);
+            transition: var(--transition);
+        }
+        .feature-card:hover i {
+            color: var(--pink-700);
+            transform: scale(1.1);
+        }
+        .feature-card span {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: 0.2px;
+        }
+        .feature-card .feature-status {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 28px;
+            left: 50%;
+            transform: translateX(-50%) translateY(120px);
+            background: #1a1a2e;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            z-index: 999;
+            pointer-events: none;
+            transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.3);
+            letter-spacing: 0.2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+        .toast.success {
+            background: #1b5e20;
+        }
+        .toast.info {
+            background: #1a1a2e;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            .action-cards-row {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            .action-cards-row .action-card:last-child {
+                grid-column: 1 / -1;
+            }
+            .editor-layout {
+                grid-template-columns: 1fr;
+                min-height: auto;
+            }
+            #textInput {
+                min-height: 280px;
+                max-height: 400px;
+            }
+            .preview-content {
+                max-height: 400px;
+            }
+            .feature-cards-row {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+        }
+        @media (max-width: 640px) {
+            .app-header {
+                padding: 12px 16px;
+                gap: 8px;
+            }
+            .app-header h1 {
+                font-size: 1.2rem;
+            }
+            .app-header .subtitle {
+                font-size: 0.7rem;
+            }
+            .main-container {
+                padding: 10px 8px 20px;
+            }
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 7px;
+            }
+            .stat-card {
+                padding: 10px 12px;
+                gap: 8px;
+            }
+            .stat-icon {
+                width: 34px;
+                height: 34px;
+                font-size: 1rem;
+                border-radius: 8px;
+            }
+            .stat-value {
+                font-size: 1.2rem;
+            }
+            .stat-label {
+                font-size: 0.68rem;
+            }
+            .action-cards-row {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            .action-cards-row .action-card:last-child {
+                grid-column: auto;
+            }
+            .editor-layout {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            #textInput {
+                min-height: 240px;
+                max-height: 320px;
+                font-size: 0.82rem;
+                padding: 12px;
+            }
+            .preview-content {
+                max-height: 320px;
+                font-size: 0.82rem;
+                padding: 12px;
+            }
+            .feature-cards-row {
+                grid-template-columns: 1fr 1fr;
+                gap: 7px;
+            }
+            .feature-card {
+                padding: 10px 12px;
+            }
+            .btn {
+                padding: 6px 10px;
+                font-size: 0.72rem;
+                border-radius: 16px;
+            }
+            .panel-header {
+                font-size: 0.72rem;
+                padding: 10px 14px;
+            }
+            .action-card h3 {
+                font-size: 0.74rem;
+            }
+        }
+        @media (max-width: 380px) {
+            .stats-row {
+                grid-template-columns: 1fr 1fr;
+                gap: 5px;
+            }
+            .feature-cards-row {
+                grid-template-columns: 1fr;
+                gap: 5px;
+            }
+            .btn-group {
+                gap: 4px;
+            }
+            .btn {
+                padding: 5px 8px;
+                font-size: 0.68rem;
+                border-radius: 14px;
+                gap: 3px;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d0c0c8;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #b0a0a8;
+        }
+
+        /* Print hidden */
+        @media print {
+            .app-header,
+            .stats-row,
+            .action-cards-row,
+            .feature-cards-row,
+            .toast,
+            .btn,
+            .panel-header {
+                display: none !important;
+            }
+            .editor-layout {
+                grid-template-columns: 1fr;
+            }
+            .preview-content {
+                max-height: none;
+            }
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <header>
-        <h1><i class="fa-solid fa-wand-magic-sparkles"></i> Text Justifier & Content Formatter</h1>
-        <p>Premium typographic workspace for alignment structuring and layout design.</p>
+    <!-- Header -->
+    <header class="app-header" role="banner">
+        <span class="logo-icon" aria-hidden="true">📝</span>
+        <div>
+            <h1>Text Justifier & Content Formatter</h1>
+            <span class="subtitle">Premium formatting tool — align, structure & export your content</span>
+        </div>
     </header>
 
-    <section class="stats-grid" aria-label="Content Statistics Dashboard">
-        <div class="stat-card">
-            <div class="stat-icon"><i class="fa-solid fa-file-lines"></i></div>
-            <div class="stat-info">
-                <h3 id="stat-words">0</h3>
-                <p>Words</p>
+    <!-- Main Container -->
+    <main class="main-container" role="main">
+
+        <!-- Statistics Cards -->
+        <section class="stats-row" aria-label="Text statistics">
+            <div class="stat-card" role="status" aria-live="polite" aria-label="Word count">
+                <div class="stat-icon words"><i class="fa-solid fa-font" aria-hidden="true"></i></div>
+                <div class="stat-info">
+                    <span class="stat-value" id="wordCount">0</span>
+                    <span class="stat-label">Words</span>
+                </div>
             </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon"><i class="fa-solid fa-italic"></i></div>
-            <div class="stat-info">
-                <h3 id="stat-chars">0</h3>
-                <p>Characters</p>
+            <div class="stat-card" role="status" aria-live="polite" aria-label="Character count">
+                <div class="stat-icon chars"><i class="fa-solid fa-text-width" aria-hidden="true"></i></div>
+                <div class="stat-info">
+                    <span class="stat-value" id="charCount">0</span>
+                    <span class="stat-label">Characters</span>
+                </div>
             </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon"><i class="fa-solid fa-quote-left"></i></div>
-            <div class="stat-info">
-                <h3 id="stat-sentences">0</h3>
-                <p>Sentences</p>
+            <div class="stat-card" role="status" aria-live="polite" aria-label="Sentence count">
+                <div class="stat-icon sentences"><i class="fa-solid fa-quote-right" aria-hidden="true"></i></div>
+                <div class="stat-info">
+                    <span class="stat-value" id="sentenceCount">0</span>
+                    <span class="stat-label">Sentences</span>
+                </div>
             </div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon"><i class="fa-solid fa-paragraph"></i></div>
-            <div class="stat-info">
-                <h3 id="stat-paragraphs">0</h3>
-                <p>Paragraphs</p>
+            <div class="stat-card" role="status" aria-live="polite" aria-label="Paragraph count">
+                <div class="stat-icon paragraphs"><i class="fa-solid fa-paragraph" aria-hidden="true"></i></div>
+                <div class="stat-info">
+                    <span class="stat-value" id="paragraphCount">0</span>
+                    <span class="stat-label">Paragraphs</span>
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <article class="panel">
-        <div class="panel-header">
-            <span>Input Text Editor Zone</span>
-            <small style="color: var(--text-muted); font-weight: normal;">Supports up to 5,000+ words</small>
-        </div>
-        <div class="panel-body">
-            <textarea id="editor" class="editor-textarea" placeholder="Paste or type your draft content text structure block here..." oninput="processContent()" aria-label="Input content to format"></textarea>
-        </div>
-    </article>
-
-    <article class="panel">
-        <div class="panel-header">
-            <span>Real-Time Output Preview Target Frame</span>
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <button class="btn" onclick="copyPreviewPlainText()" style="padding: 4px 10px; font-size: 0.75rem; background: var(--bg); color: var(--primary-dark); border: none;"><i class="fa-solid fa-copy"></i> Copy Output Text</button>
-                <span id="rendering-indicator" style="font-size: 0.8rem; color: var(--primary-dark); font-weight: bold;"><i class="fa-solid fa-circle-check"></i> Live Sync</span>
+        <!-- Action Cards Row -->
+        <section class="action-cards-row" aria-label="Formatting controls">
+            <!-- Alignment Card -->
+            <div class="action-card" role="region" aria-label="Text alignment options">
+                <h3><i class="fa-solid fa-align-center" aria-hidden="true"></i> Text Alignment</h3>
+                <div class="btn-group" role="radiogroup" aria-label="Alignment selection">
+                    <button class="btn btn-outline align-btn active" data-align="justify" role="radio" aria-checked="true" aria-label="Justify text" title="Justify">
+                        <i class="fa-solid fa-align-justify" aria-hidden="true"></i> Justify
+                    </button>
+                    <button class="btn btn-outline align-btn" data-align="left" role="radio" aria-checked="false" aria-label="Left align text" title="Left Align">
+                        <i class="fa-solid fa-align-left" aria-hidden="true"></i> Left
+                    </button>
+                    <button class="btn btn-outline align-btn" data-align="center" role="radio" aria-checked="false" aria-label="Center align text" title="Center Align">
+                        <i class="fa-solid fa-align-center" aria-hidden="true"></i> Center
+                    </button>
+                    <button class="btn btn-outline align-btn" data-align="right" role="radio" aria-checked="false" aria-label="Right align text" title="Right Align">
+                        <i class="fa-solid fa-align-right" aria-hidden="true"></i> Right
+                    </button>
+                </div>
             </div>
-        </div>
-        <div class="panel-body">
-            <div id="preview" class="preview-container align-justify" aria-live="polite"></div>
-        </div>
-    </article>
 
-    <section class="control-card" aria-label="Text Alignment Area">
-        <h2><i class="fa-solid fa-align-justify"></i> Text Alignment</h2>
-        <div class="btn-group" role="group">
-            <button class="btn active" data-align="justify" onclick="setAlign('justify')"><i class="fa-solid fa-align-justify"></i> Justify</button>
-            <button class="btn" data-align="left" onclick="setAlign('left')"><i class="fa-solid fa-align-left"></i> Left</button>
-            <button class="btn" data-align="center" onclick="setAlign('center')"><i class="fa-solid fa-align-center"></i> Center</button>
-            <button class="btn" data-align="right" onclick="setAlign('right')"><i class="fa-solid fa-align-right"></i> Right</button>
-        </div>
-    </section>
-
-    <section class="control-card" aria-label="Heading Selection Layout">
-        <h2><i class="fa-solid fa-heading"></i> Heading Selection</h2>
-        <div class="btn-group">
-            <button class="btn" onclick="applyManualHeading('h1')">H1</button>
-            <button class="btn" onclick="applyManualHeading('h2')">H2</button>
-            <button class="btn" onclick="applyManualHeading('h3')">H3</button>
-            <button class="btn" onclick="applyManualHeading('p')">P</button>
-        </div>
-    </section>
-
-    <section class="control-card" aria-label="Speed Action Layout Utilities">
-        <h2><i class="fa-solid fa-bolt"></i> Speed Utilities</h2>
-        <div class="btn-group">
-            <button class="btn" onclick="pasteText()"><i class="fa-solid fa-clipboard"></i> Paste</button>
-            <button class="btn" onclick="clearAll()"><i class="fa-solid fa-trash-can"></i> Clear All</button>
-            <button class="btn" onclick="copyAllText()"><i class="fa-solid fa-copy"></i> Copy Raw</button>
-        </div>
-    </section>
-
-    <section class="toggle-group-block" aria-label="Layout Engine Management Switches">
-        <div class="toggle-card">
-            <div class="toggle-label">
-                <span>Auto Heading Structural Mode</span>
-                <small>AI-Style Layout Pattern Parsing (H1-H4)</small>
+            <!-- Heading Structure Card -->
+            <div class="action-card" role="region" aria-label="Heading structure controls">
+                <h3><i class="fa-solid fa-heading" aria-hidden="true"></i> Heading Structure</h3>
+                <div class="btn-group" style="margin-bottom:8px;">
+                    <button class="btn btn-outline btn-sm heading-btn" data-level="1" aria-label="Convert selected line to H1" title="Convert selected line to H1">
+                        <strong>H1</strong>
+                    </button>
+                    <button class="btn btn-outline btn-sm heading-btn" data-level="2" aria-label="Convert selected line to H2" title="Convert selected line to H2">
+                        <strong>H2</strong>
+                    </button>
+                    <button class="btn btn-outline btn-sm heading-btn" data-level="3" aria-label="Convert selected line to H3" title="Convert selected line to H3">
+                        <strong>H3</strong>
+                    </button>
+                    <button class="btn btn-outline btn-sm heading-btn" data-level="4" aria-label="Convert selected line to H4" title="Convert selected line to H4">
+                        <strong>H4</strong>
+                    </button>
+                    <button class="btn btn-ghost btn-sm" id="clearHeadingBtn" aria-label="Remove heading from selected line" title="Remove heading from selected line">
+                        <i class="fa-solid fa-eraser" aria-hidden="true"></i> Clear
+                    </button>
+                </div>
+                <div class="toggle-switch-wrap">
+                    <label class="toggle-switch" for="autoDetectToggle" aria-label="Toggle auto-detect headings">
+                        <input type="checkbox" id="autoDetectToggle" role="switch" aria-checked="false">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <label class="toggle-label" for="autoDetectToggle">🤖 Auto Detect Headings</label>
+                </div>
+                <button class="btn btn-pink btn-sm" id="clearAllHeadingsBtn" style="margin-top:6px;width:100%;" aria-label="Clear all heading assignments">
+                    <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Reset All Headings
+                </button>
             </div>
-            <label class="switch">
-                <input type="checkbox" id="toggleAutoHeading" onchange="processContent()">
-                <span class="slider"></span>
-            </label>
-        </div>
 
-        <div class="toggle-card">
-            <div class="toggle-label">
-                <span>Preserve Line-Breaks</span>
-                <small>Retains paragraph break lines precisely</small>
+            <!-- Actions Card -->
+            <div class="action-card" role="region" aria-label="Additional actions">
+                <h3><i class="fa-solid fa-bolt" aria-hidden="true"></i> Quick Actions</h3>
+                <div class="btn-group">
+                    <button class="btn btn-pink" id="pasteBtn" aria-label="Paste text from clipboard">
+                        <i class="fa-solid fa-paste" aria-hidden="true"></i> Paste
+                    </button>
+                    <button class="btn btn-outline" id="clearBtn" aria-label="Clear all text">
+                        <i class="fa-solid fa-trash-can" aria-hidden="true"></i> Clear
+                    </button>
+                    <button class="btn btn-outline" id="copyHtmlBtn" aria-label="Copy formatted HTML to clipboard">
+                        <i class="fa-solid fa-code" aria-hidden="true"></i> Copy HTML
+                    </button>
+                    <button class="btn btn-outline" id="copyPlainBtn" aria-label="Copy plain text to clipboard">
+                        <i class="fa-solid fa-copy" aria-hidden="true"></i> Copy Text
+                    </button>
+                    <button class="btn btn-outline" id="downloadTxtBtn" aria-label="Download as TXT file">
+                        <i class="fa-solid fa-file-lines" aria-hidden="true"></i> .TXT
+                    </button>
+                    <button class="btn btn-pink" id="downloadHtmlBtn" aria-label="Download as HTML file">
+                        <i class="fa-solid fa-file-code" aria-hidden="true"></i> .HTML
+                    </button>
+                </div>
             </div>
-            <label class="switch">
-                <input type="checkbox" id="togglePreserveBreaks" checked onchange="processContent()">
-                <span class="slider"></span>
-            </label>
-        </div>
-    </section>
+        </section>
 
-    <footer class="action-asset-bar" aria-label="Extraction File Engine Panels">
-        <button class="btn active" onclick="copyFormattedHTML()"><i class="fa-solid fa-code"></i> Copy HTML Source</button>
-        <button class="btn" onclick="downloadAsset('txt')"><i class="fa-solid fa-file-arrow-down"></i> Export .TXT</button>
-        <button class="btn" onclick="downloadAsset('html')"><i class="fa-solid fa-download"></i> Export .HTML</button>
-        <button class="btn" onclick="downloadAsset('all-txt')" style="background: #9C27B0; color: white; border-color: #9C27B0;"><i class="fa-solid fa-file-lines"></i> Download All Text</button>
-    </footer>
-</div>
+        <!-- Editor Layout -->
+        <section class="editor-layout" aria-label="Editor and preview panels">
+            <!-- Input Panel -->
+            <div class="editor-panel" role="region" aria-label="Text input editor">
+                <div class="panel-header">
+                    <i class="fa-solid fa-keyboard" aria-hidden="true"></i> Input Text
+                </div>
+                <div class="panel-body">
+                    <div class="textarea-wrap">
+                        <textarea
+                        id="textInput"
+                        placeholder="Type or paste your content here…&#10;&#10;This tool supports up to 5,000 words with real-time formatting preview.&#10;&#10;Try adding headings by selecting a line and clicking H1, H2, or H3 above.&#10;Enable Auto Detect Headings for AI-style structure analysis."
+                        aria-label="Text input area"
+                        aria-describedby="inputHint"
+                        maxlength="100000"
+                        ></textarea>
+                    </div>
+                    <span id="inputHint" style="display:none;">Type or paste your content. Use the alignment and heading controls to format.</span>
+                </div>
+            </div>
 
-<script>
-    let currentAlignment = 'justify';
-    let manuallyAssignedHeadings = new Map();
+            <!-- Preview Panel -->
+            <div class="editor-panel" role="region" aria-label="Live preview panel">
+                <div class="panel-header">
+                    <i class="fa-solid fa-eye" aria-hidden="true"></i> Live Preview
+                </div>
+                <div class="panel-body">
+                    <div class="preview-content" id="previewContent" aria-live="polite" aria-atomic="false">
+                        <div class="empty-preview">
+                            <i class="fa-solid fa-arrow-left" aria-hidden="true" style="font-size:2rem;display:block;margin-bottom:10px;color:#d0c0c8;"></i>
+                            Start typing in the editor to see a live preview here…
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-    function setAlign(mode) {
-        currentAlignment = mode;
-        document.querySelectorAll('[data-align]').forEach(btn => btn.classList.remove('active'));
-        document.querySelector(`[data-align="${mode}"]`).classList.add('active');
+        <!-- Bottom Feature Cards -->
+        <section class="feature-cards-row" aria-label="Feature shortcuts">
+            <div class="feature-card" id="featureAutoHeading" tabindex="0" role="button" aria-label="Toggle auto heading structure" title="Click to toggle Auto Heading Structure">
+                <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
+                <span>Auto Heading Structure</span>
+                <span class="feature-status" id="featureAutoHeadingStatus">Disabled</span>
+            </div>
+            <div class="feature-card" id="featurePreserveBreaks" tabindex="0" role="button" aria-label="Toggle preserve line breaks" title="Click to toggle Preserve Line Breaks">
+                <i class="fa-solid fa-arrows-up-down" aria-hidden="true"></i>
+                <span>Preserve Line Breaks</span>
+                <span class="feature-status" id="featurePreserveBreaksStatus">Enabled</span>
+            </div>
+            <div class="feature-card" id="featureCopyHtml" tabindex="0" role="button" aria-label="Copy formatted HTML" title="Click to copy formatted HTML">
+                <i class="fa-solid fa-clipboard-check" aria-hidden="true"></i>
+                <span>Copy as HTML</span>
+                <span class="feature-status">One-click copy</span>
+            </div>
+            <div class="feature-card" id="featureDownloadAll" tabindex="0" role="button" aria-label="Download all output formats" title="Click for download options">
+                <i class="fa-solid fa-download" aria-hidden="true"></i>
+                <span>Download TXT & HTML</span>
+                <span class="feature-status">Both formats</span>
+            </div>
+        </section>
 
-        const preview = document.getElementById('preview');
-        preview.className = 'preview-container'; 
-        preview.classList.add(`align-${mode}`);
-    }
+    </main>
 
-    function processContent() {
-        const editor = document.getElementById('editor');
-        const preview = document.getElementById('preview');
-        const rawText = editor.value;
+    <!-- Toast notification -->
+    <div class="toast" id="toast" role="status" aria-live="assertive" aria-atomic="true"></div>
 
-        calculateStatistics(rawText);
+    <script>
+        (function() {
+            // ─────────────────────────────────────
+            // DOM References
+            // ─────────────────────────────────────
+            const textInput = document.getElementById('textInput');
+            const previewContent = document.getElementById('previewContent');
+            const toast = document.getElementById('toast');
 
-        if(!rawText.trim()) {
-            preview.innerHTML = `<p style="color: var(--text-muted); font-style: italic;">Dynamic preview content output area is currently empty...</p>`;
-            return;
-        }
+            // Stat displays
+            const wordCountEl = document.getElementById('wordCount');
+            const charCountEl = document.getElementById('charCount');
+            const sentenceCountEl = document.getElementById('sentenceCount');
+            const paragraphCountEl = document.getElementById('paragraphCount');
 
-        const isAutoHeadingActive = document.getElementById('toggleAutoHeading').checked;
-        const preserveBreaks = document.getElementById('togglePreserveBreaks').checked;
+            // Alignment buttons
+            const alignBtns = document.querySelectorAll('.align-btn');
+            // Heading buttons
+            const headingBtns = document.querySelectorAll('.heading-btn');
+            const clearHeadingBtn = document.getElementById('clearHeadingBtn');
+            const clearAllHeadingsBtn = document.getElementById('clearAllHeadingsBtn');
+            const autoDetectToggle = document.getElementById('autoDetectToggle');
 
-        const lines = rawText.split('\n');
-        let processedHTMLArray = [];
+            // Action buttons
+            const pasteBtn = document.getElementById('pasteBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const copyHtmlBtn = document.getElementById('copyHtmlBtn');
+            const copyPlainBtn = document.getElementById('copyPlainBtn');
+            const downloadTxtBtn = document.getElementById('downloadTxtBtn');
+            const downloadHtmlBtn = document.getElementById('downloadHtmlBtn');
 
-        lines.forEach((line, index) => {
-            const cleanCheckText = line.trim();
+            // Feature cards
+            const featureAutoHeading = document.getElementById('featureAutoHeading');
+            const featurePreserveBreaks = document.getElementById('featurePreserveBreaks');
+            const featureCopyHtml = document.getElementById('featureCopyHtml');
+            const featureDownloadAll = document.getElementById('featureDownloadAll');
+            const featureAutoHeadingStatus = document.getElementById('featureAutoHeadingStatus');
+            const featurePreserveBreaksStatus = document.getElementById('featurePreserveBreaksStatus');
 
-            if (cleanCheckText === "") {
-                if (preserveBreaks) {
-                    processedHTMLArray.push(`<p>&nbsp;</p>`);
+            // ─────────────────────────────────────
+            // State
+            // ─────────────────────────────────────
+            let currentAlignment = 'justify';
+            let headingAssignments = new Map(); // lineIndex -> level (1-4)
+            let autoDetectEnabled = false;
+            let preserveLineBreaks = true;
+            let updateRAFId = null;
+            let lastProcessedText = '';
+
+            // ─────────────────────────────────────
+            // Toast Helper
+            // ─────────────────────────────────────
+            let toastTimeout;
+
+            function showToast(message, type = 'info') {
+                if (toastTimeout) clearTimeout(toastTimeout);
+                toast.textContent = message;
+                toast.className = 'toast ' + type;
+                // Force reflow
+                void toast.offsetWidth;
+                toast.classList.add('show');
+                toastTimeout = setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 2200);
+            }
+
+            // ─────────────────────────────────────
+            // Statistics Calculator
+            // ─────────────────────────────────────
+            function calculateStats(text) {
+                const trimmed = text.trim();
+                const words = trimmed ? trimmed.split(/\s+/).filter(w => w.length > 0) : [];
+                const wordCount = words.length;
+                const charCount = text.length;
+                const sentences = trimmed ? trimmed.split(/[.!?]+/).filter(s => s.trim().length > 0) : [];
+                const sentenceCount = sentences.length;
+                const paragraphs = trimmed ? trimmed.split(/\n\n+/).filter(p => p.trim().length > 0) : [];
+                const paragraphCount = paragraphs.length;
+                return { wordCount, charCount, sentenceCount, paragraphCount };
+            }
+
+            function updateStats(text) {
+                const stats = calculateStats(text);
+                wordCountEl.textContent = stats.wordCount.toLocaleString();
+                charCountEl.textContent = stats.charCount.toLocaleString();
+                sentenceCountEl.textContent = stats.sentenceCount.toLocaleString();
+                paragraphCountEl.textContent = stats.paragraphCount.toLocaleString();
+            }
+
+            // ─────────────────────────────────────
+            // Auto Detect Headings Algorithm
+            // ─────────────────────────────────────
+            function autoDetectHeadings(text) {
+                const lines = text.split('\n');
+                const detected = new Map();
+                let firstNonEmptyFound = false;
+                let firstNonEmptyIndex = -1;
+
+                // Find first non-empty line
+                for (let i = 0; i < lines.length; i++) {
+                    if (lines[i].trim()) {
+                        firstNonEmptyIndex = i;
+                        break;
+                    }
                 }
-                return;
+
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i];
+                    const trimmedLine = line.trim();
+                    if (!trimmedLine) continue;
+
+                    // First non-empty line → candidate for H1
+                    if (!firstNonEmptyFound && i === firstNonEmptyIndex) {
+                        const clean = trimmedLine.replace(/^[#\*\-\d\.\s•●►▸]+/, '').trim();
+                        if (clean.length <= 120 && clean.length >= 2) {
+                            detected.set(i, 1);
+                        }
+                        firstNonEmptyFound = true;
+                        continue;
+                    }
+
+                    // Skip lines that look like continuation of previous paragraph
+                    if (i > 0 && lines[i - 1].trim() && !detected.has(i - 1) &&
+                        !lines[i - 1].trim().endsWith('.') &&
+                        !lines[i - 1].trim().endsWith('!') &&
+                        !lines[i - 1].trim().endsWith('?') &&
+                        !lines[i - 1].trim().endsWith(':') &&
+                        lines[i - 1].trim().length > 50) {
+                        continue;
+                    }
+
+                    const cleanLine = trimmedLine.replace(/^[#\*\-\d\.\s•●►▸]+/, '').trim();
+                    const length = cleanLine.length;
+                    const endsWithPunctuation = /[.!?;,]$/.test(trimmedLine);
+                    const isAllCaps = trimmedLine === trimmedLine.toUpperCase() && trimmedLine.length > 3 &&
+                        /[A-Z]/.test(trimmedLine);
+
+                    // Check if followed by substantial content
+                    let hasFollowingContent = false;
+                    let followingContentLength = 0;
+                    for (let j = i + 1; j < lines.length; j++) {
+                        const fl = lines[j].trim();
+                        if (fl) {
+                            hasFollowingContent = true;
+                            followingContentLength += fl.length;
+                            if (followingContentLength > 30) break;
+                        } else if (followingContentLength > 0) {
+                            break;
+                        }
+                    }
+
+                    // H2 candidates: ALL CAPS, or short standalone lines
+                    if (isAllCaps && length <= 80 && length >= 3 && hasFollowingContent) {
+                        detected.set(i, 2);
+                        continue;
+                    }
+
+                    // Short standalone line followed by content → H2 or H3
+                    if (length <= 70 && length >= 3 && !endsWithPunctuation && hasFollowingContent) {
+                        if (length <= 45 && /^[A-Z]/.test(cleanLine)) {
+                            detected.set(i, 2);
+                        } else if (length <= 55 && /^[A-Z]/.test(cleanLine)) {
+                            detected.set(i, 3);
+                        } else if (length <= 35) {
+                            detected.set(i, 4);
+                        }
+                        continue;
+                    }
+
+                    // Line surrounded by blank lines, short → H3 or H4
+                    const prevIsBlank = i === 0 || !lines[i - 1].trim();
+                    const nextIsBlank = i === lines.length - 1 || !lines[i + 1].trim();
+                    if (prevIsBlank && nextIsBlank && length <= 60 && length >= 2 && !endsWithPunctuation) {
+                        if (length <= 40 && /^[A-Z]/.test(cleanLine)) {
+                            detected.set(i, 3);
+                        } else if (length <= 30) {
+                            detected.set(i, 4);
+                        }
+                    }
+                }
+
+                return detected;
             }
 
-            let tagType = 'p';
+            // ─────────────────────────────────────
+            // Build Preview HTML
+            // ─────────────────────────────────────
+            function buildPreviewHTML(text, headings, alignment, preserveBreaks) {
+                if (!text.trim()) {
+                    return '<div class="empty-preview"><i class="fa-solid fa-pen-to-square" aria-hidden="true" style="font-size:2rem;display:block;margin-bottom:10px;color:#d0c0c8;"></i>Your formatted content will appear here…</div>';
+                }
 
-            if (manuallyAssignedHeadings.has(index)) {
-                tagType = manuallyAssignedHeadings.get(index);
-            } 
-            else if (isAutoHeadingActive) {
-                tagType = autoDetectHeadingRules(cleanCheckText, index, lines.length);
+                const lines = text.split('\n');
+                const htmlParts = [];
+                let inParagraph = false;
+                let paragraphLines = [];
+
+                function flushParagraph() {
+                    if (paragraphLines.length === 0) return;
+                    const pContent = paragraphLines.join('<br>');
+                    htmlParts.push('<p>' + pContent + '</p>');
+                    paragraphLines = [];
+                    inParagraph = false;
+                }
+
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i];
+                    const trimmedLine = line.trim();
+                    const headingLevel = headings.get(i);
+
+                    if (headingLevel && trimmedLine) {
+                        // Flush any open paragraph
+                        flushParagraph();
+                        const tag = 'h' + headingLevel;
+                        const escapedLine = escapeHTML(trimmedLine);
+                        htmlParts.push('<' + tag + '>' + escapedLine + '</' + tag + '>');
+                        continue;
+                    }
+
+                    // Blank line → paragraph break
+                    if (!trimmedLine) {
+                        flushParagraph();
+                        continue;
+                    }
+
+                    // Regular line
+                    if (preserveBreaks) {
+                        if (!inParagraph) {
+                            inParagraph = true;
+                            paragraphLines = [];
+                        }
+                        paragraphLines.push(escapeHTML(trimmedLine));
+                    } else {
+                        // Don't preserve single breaks; accumulate with space
+                        if (!inParagraph) {
+                            inParagraph = true;
+                            paragraphLines = [];
+                        }
+                        paragraphLines.push(escapeHTML(trimmedLine));
+                    }
+                }
+                flushParagraph();
+
+                if (htmlParts.length === 0) {
+                    // All lines were empty or whitespace
+                    const allEscaped = escapeHTML(text);
+                    if (allEscaped.trim()) {
+                        htmlParts.push('<p>' + allEscaped.replace(/\n/g, '<br>') + '</p>');
+                    } else {
+                        return '<div class="empty-preview">Preview appears here…</div>';
+                    }
+                }
+
+                return htmlParts.join('\n');
             }
 
-            const escapedContent = escapeHTML(line);
-            
-            if (tagType === 'p') {
-                processedHTMLArray.push(`<p>${escapedContent}</p>`);
-            } else {
-                processedHTMLArray.push(`<${tagType}>${escapedContent}</${tagType}>`);
+            function escapeHTML(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
             }
-        });
 
-        preview.innerHTML = processedHTMLArray.join('');
-    }
+            // ─────────────────────────────────────
+            // Update Preview
+            // ─────────────────────────────────────
+            function updatePreview() {
+                const text = textInput.value;
+                let headings;
 
-    function autoDetectHeadingRules(line, index, totalLines) {
-        const wordCount = line.split(/\s+/).filter(w => w.length > 0).length;
-        const isShort = wordCount > 0 && wordCount <= 8;
-        const endsWithPunctuation = /[.:!?]$/.test(line);
-        const isAllUpperCase = line === line.toUpperCase() && /[A-Z]/.test(line);
+                if (autoDetectEnabled) {
+                    headings = autoDetectHeadings(text);
+                    // Update global headingAssignments for external access
+                    headingAssignments = new Map(headings);
+                } else {
+                    // Clean up heading assignments for lines that no longer exist
+                    const totalLines = text.split('\n').length;
+                    const cleaned = new Map();
+                    for (const [lineIdx, level] of headingAssignments) {
+                        if (lineIdx < totalLines) {
+                            cleaned.set(lineIdx, level);
+                        }
+                    }
+                    headingAssignments = cleaned;
+                    headings = headingAssignments;
+                }
 
-        if (isShort && !endsWithPunctuation) {
-            if (index === 0) return 'h1';
-            else if (isAllUpperCase || wordCount <= 4) return 'h2';
-            else if (wordCount <= 6) return 'h3';
-            else return 'h4';
+                const html = buildPreviewHTML(text, headings, currentAlignment, preserveLineBreaks);
+                previewContent.innerHTML = html;
+                previewContent.style.textAlign = currentAlignment;
+
+                updateStats(text);
+                lastProcessedText = text;
+            }
+
+            function scheduleUpdate() {
+                if (updateRAFId) {
+                    cancelAnimationFrame(updateRAFId);
+                }
+                updateRAFId = requestAnimationFrame(() => {
+                    updatePreview();
+                    updateRAFId = null;
+                });
+            }
+
+            // ─────────────────────────────────────
+            // Get Current Line Index from Cursor
+            // ─────────────────────────────────────
+            function getCurrentLineIndex() {
+                const cursorPos = textInput.selectionStart;
+                const textBeforeCursor = textInput.value.substring(0, cursorPos);
+                return textBeforeCursor.split('\n').length - 1;
+            }
+
+            // ─────────────────────────────────────
+            // Set Heading for a Line
+            // ─────────────────────────────────────
+            function setHeadingForLine(lineIndex, level) {
+                if (lineIndex < 0) return;
+                const text = textInput.value;
+                const lines = text.split('\n');
+                if (lineIndex >= lines.length) return;
+                if (!lines[lineIndex].trim()) {
+                    showToast('⚠️ Cannot assign heading to an empty line.', 'info');
+                    return;
+                }
+                // Toggle: if already this level, remove it
+                if (headingAssignments.get(lineIndex) === level) {
+                    headingAssignments.delete(lineIndex);
+                } else {
+                    headingAssignments.set(lineIndex, level);
+                }
+                // Disable auto-detect when manually assigning
+                if (autoDetectEnabled) {
+                    autoDetectEnabled = false;
+                    autoDetectToggle.checked = false;
+                    updateAutoDetectUI();
+                }
+                scheduleUpdate();
+            }
+
+            function clearHeadingForLine(lineIndex) {
+                headingAssignments.delete(lineIndex);
+                scheduleUpdate();
+            }
+
+            function clearAllHeadings() {
+                headingAssignments.clear();
+                if (autoDetectEnabled) {
+                    autoDetectEnabled = false;
+                    autoDetectToggle.checked = false;
+                    updateAutoDetectUI();
+                }
+                scheduleUpdate();
+            }
+
+            // ─────────────────────────────────────
+            // Update Auto Detect UI
+            // ─────────────────────────────────────
+            function updateAutoDetectUI() {
+                if (autoDetectEnabled) {
+                    featureAutoHeadingStatus.textContent = 'Enabled';
+                    featureAutoHeadingStatus.style.color = '#2e7d32';
+                    featureAutoHeading.style.borderColor = '#4caf50';
+                } else {
+                    featureAutoHeadingStatus.textContent = 'Disabled';
+                    featureAutoHeadingStatus.style.color = '';
+                    featureAutoHeading.style.borderColor = '';
+                }
+            }
+
+            function updatePreserveBreaksUI() {
+                if (preserveLineBreaks) {
+                    featurePreserveBreaksStatus.textContent = 'Enabled';
+                    featurePreserveBreaksStatus.style.color = '#2e7d32';
+                    featurePreserveBreaks.style.borderColor = '#4caf50';
+                } else {
+                    featurePreserveBreaksStatus.textContent = 'Disabled';
+                    featurePreserveBreaksStatus.style.color = '#c62828';
+                    featurePreserveBreaks.style.borderColor = '#ef9a9a';
+                }
+            }
+
+            // ─────────────────────────────────────
+            // Generate Output HTML (full document)
+            // ─────────────────────────────────────
+            function generateOutputHTML(text, headings, alignment, preserveBreaks) {
+                const bodyHTML = buildPreviewHTML(text, headings, alignment, preserveBreaks);
+                return `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Formatted Content</title>
+        <style>
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            line-height: 1.7;
+            color: #1a1a2e;
+            text-align: ${alignment};
         }
-        return 'p';
-    }
-
-    function applyManualHeading(tag) {
-        const editor = document.getElementById('editor');
-        const startPos = editor.selectionStart;
-        const text = editor.value;
-
-        if (startPos === undefined) return;
-
-        const linesBeforeCursor = text.substring(0, startPos).split('\n');
-        const targetLineIndex = linesBeforeCursor.length - 1;
-
-        manuallyAssignedHeadings.set(targetLineIndex, tag);
-        processContent();
-    }
-
-    function calculateStatistics(text) {
-        if (!text) {
-            updateStatsUI(0, 0, 0, 0);
-            return;
-        }
-
-        const charsCount = text.length;
-        const wordsArray = text.trim().split(/\s+/).filter(w => w.length > 0);
-        const wordsCount = wordsArray.length;
-        const sentencesCount = text.split(/[.!?]+/).filter(s => s.trim().length > 0).length;
-        const paragraphsCount = text.split(/\n+/).filter(p => p.trim().length > 0).length;
-
-        updateStatsUI(wordsCount, charsCount, sentencesCount, paragraphsCount);
-    }
-
-    function updateStatsUI(w, c, s, p) {
-        document.getElementById('stat-words').innerText = w.toLocaleString();
-        document.getElementById('stat-chars').innerText = c.toLocaleString();
-        document.getElementById('stat-sentences').innerText = s.toLocaleString();
-        document.getElementById('stat-paragraphs').innerText = p.toLocaleString();
-    }
-
-    function escapeHTML(str) {
-        return str
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
-
-    async function pasteText() {
-        try {
-            const text = await navigator.clipboard.readText();
-            const editor = document.getElementById('editor');
-            editor.value = text;
-            manuallyAssignedHeadings.clear(); 
-            processContent();
-        } catch (err) {
-            alert('Unable to read clipboard data automatically. Please use Ctrl+V / Cmd+V directly into the input field.');
-        }
-    }
-
-    function clearAll() {
-        if(confirm("Are you sure you want to clear all contents and manual modifications?")) {
-            document.getElementById('editor').value = "";
-            manuallyAssignedHeadings.clear();
-            processContent();
-        }
-    }
-
-    function executeClipboardCopy(textToCopy) {
-        if (navigator.clipboard && window.isSecureContext) {
-            return navigator.clipboard.writeText(textToCopy);
-        } else {
-            let textArea = document.createElement("textarea");
-            textArea.value = textToCopy;
-            textArea.style.position = "fixed"; textArea.style.left = "-999999px";
-            document.body.appendChild(textArea);
-            textArea.focus(); textArea.select();
-            return new Promise((resolve, reject) => {
-                document.execCommand('copy') ? resolve() : reject();
-                textArea.remove();
-            });
-        }
-    }
-
-    function copyAllText() {
-        const text = document.getElementById('editor').value;
-        if(!text.trim()) return;
-        executeClipboardCopy(text).then(() => {
-            flashIndicator();
-            alert('Raw input text copied successfully!');
-        }).catch(() => alert('Copy failed.'));
-    }
-
-    // FIXED: Captures current dynamic live preview results text values perfectly
-    function copyPreviewPlainText() {
-        const previewElement = document.getElementById('preview');
-        if(!previewElement.innerText.trim() || previewElement.innerText.includes("area is currently empty")) return;
-        executeClipboardCopy(previewElement.innerText).then(() => {
-            flashIndicator();
-            alert('All Formatted Output Text Copied Successfully!');
-        }).catch(() => alert('Copy failed.'));
-    }
-
-    function copyFormattedHTML() {
-        const previewElement = document.getElementById('preview');
-        const htmlPayload = previewElement.innerHTML;
-        const wrapBlock = `<div style="text-align: ${currentAlignment}; font-family: sans-serif; line-height: 1.6;">\n${htmlPayload}\n</div>`;
-        
-        executeClipboardCopy(wrapBlock).then(() => {
-            flashIndicator();
-            alert('Formatted pure HTML code block structure copied successfully!');
-        }).catch(() => alert('Copy failed.'));
-    }
-
-    function downloadAsset(type) {
-        const editorValue = document.getElementById('editor').value;
-        const previewHTML = document.getElementById('preview').innerHTML;
-        const previewText = document.getElementById('preview').innerText;
-
-        if (!editorValue.trim()) {
-            alert("No data available to download.");
-            return;
-        }
-
-        let blobPayload;
-        let filename = `formatted-content-${Date.now()}`;
-
-        if (type === 'txt') {
-            blobPayload = new Blob([editorValue], { type: 'text/plain;charset=utf-8' });
-            filename += '.txt';
-        } else if (type === 'all-txt') {
-            // NEW: Downloads processed output text contents safely
-            blobPayload = new Blob([previewText], { type: 'text/plain;charset=utf-8' });
-            filename += '-output.txt';
-        } else if (type === 'html') {
-            const fullHTMLStructure = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Exported Production Content Asset Layout</title>
-    <style>
-        body { font-family: system-ui, -apple-system, sans-serif; line-height: 1.7; padding: 40px; color: #333; max-width: 800px; margin: 0 auto; }
-        .justified-container { text-align: ${currentAlignment}; text-justify: inter-word; }
-        h1, h2, h3 { color: #111; margin-top: 1.5em; margin-bottom: 0.5em; font-weight: 700; }
-        h1 { font-size: 2.25em; } h2 { font-size: 1.75em; } h3 { font-size: 1.35em; }
-        p { margin-bottom: 1.25em; }
+        h1 { font-size: 1.6rem; font-weight: 800; color: #c2185b; border-bottom: 2px solid #f48fb1; padding-bottom: 6px; margin: 16px 0 10px; }
+        h2 { font-size: 1.3rem; font-weight: 700; color: #d81b60; margin: 12px 0 8px; }
+        h3 { font-size: 1.1rem; font-weight: 600; color: #555; margin: 8px 0 6px; }
+        h4 { font-size: 0.95rem; font-weight: 600; color: #666; margin: 6px 0 4px; font-style: italic; }
+        p { margin: 6px 0; }
     </style>
 </head>
 <body>
-    <main class="justified-container">
-        ${previewHTML}
-    </main>
+    ${bodyHTML}
 </body>
 </html>`;
-            blobPayload = new Blob([fullHTMLStructure], { type: 'text/html;charset=utf-8' });
-            filename += '.html';
+}
+
+// ─────────────────────────────────────
+// Get current headings (respecting auto-detect)
+// ─────────────────────────────────────
+function getCurrentHeadings() {
+    const text = textInput.value;
+    if (autoDetectEnabled) {
+        return autoDetectHeadings(text);
+    }
+    return new Map(headingAssignments);
+}
+
+// ─────────────────────────────────────
+// Clipboard Helpers
+// ─────────────────────────────────────
+async function copyToClipboard(text, html = null) {
+    try {
+        if (html && navigator.clipboard.write) {
+            const blob = new Blob([html], { type: 'text/html' });
+            const clipboardItem = new ClipboardItem({
+                'text/html': blob,
+                'text/plain': new Blob([text], { type: 'text/plain' })
+            });
+            await navigator.clipboard.write([clipboardItem]);
+            return true;
+        } else if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(text);
+            return true;
         }
-
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blobPayload);
-        link.download = filename;
-        link.click();
-        URL.revokeObjectURL(link.href);
+    } catch (e) {
+        // Fallback
+        try {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            ta.style.top = '-9999px';
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            const success = document.execCommand('copy');
+            document.body.removeChild(ta);
+            return success;
+        } catch (e2) {
+            return false;
+        }
     }
+    return false;
+}
 
-    function flashIndicator() {
-        const indicator = document.getElementById('rendering-indicator');
-        indicator.innerHTML = `<i class="fa-solid fa-clipboard-check"></i> Copied!`;
-        setTimeout(() => {
-            indicator.innerHTML = `<i class="fa-solid fa-circle-check"></i> Live Sync`;
-        }, 2000);
+// ─────────────────────────────────────
+// Download Helper
+// ─────────────────────────────────────
+function downloadFile(content, filename, mimeType) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+// ─────────────────────────────────────
+// Event Listeners
+// ─────────────────────────────────────
+
+// Text input
+textInput.addEventListener('input', () => {
+    scheduleUpdate();
+});
+
+textInput.addEventListener('keyup', () => {
+    scheduleUpdate();
+});
+
+textInput.addEventListener('paste', () => {
+    // Allow paste to complete, then update
+    setTimeout(() => {
+        scheduleUpdate();
+    }, 50);
+});
+
+// Alignment buttons
+alignBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        alignBtns.forEach(b => {
+            b.classList.remove('active');
+            b.setAttribute('aria-checked', 'false');
+        });
+        btn.classList.add('active');
+        btn.setAttribute('aria-checked', 'true');
+        currentAlignment = btn.getAttribute('data-align');
+        scheduleUpdate();
+    });
+});
+
+// Heading buttons
+headingBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const level = parseInt(btn.getAttribute('data-level'), 10);
+        const lineIndex = getCurrentLineIndex();
+        if (lineIndex < 0) {
+            showToast('⚠️ Place your cursor on a line first.', 'info');
+            return;
+        }
+        setHeadingForLine(lineIndex, level);
+        const labels = { 1: 'H1', 2: 'H2', 3: 'H3', 4: 'H4' };
+        showToast('✅ Line converted to ' + labels[level] + ' heading.', 'success');
+    });
+});
+
+clearHeadingBtn.addEventListener('click', () => {
+    const lineIndex = getCurrentLineIndex();
+    if (lineIndex < 0) {
+        showToast('⚠️ Place your cursor on a line first.', 'info');
+        return;
     }
+    clearHeadingForLine(lineIndex);
+    showToast('🧹 Heading removed from selected line.', 'info');
+});
 
-    window.onload = () => {
-        document.getElementById('editor').value = `Project Discovery Roadmap Briefing
+clearAllHeadingsBtn.addEventListener('click', () => {
+    clearAllHeadings();
+    showToast('🧹 All heading assignments cleared.', 'info');
+});
 
-Welcome to the ultimate content formatter staging interface environment framework block.
+// Auto Detect Toggle
+autoDetectToggle.addEventListener('change', () => {
+    autoDetectEnabled = autoDetectToggle.checked;
+    updateAutoDetectUI();
+    if (autoDetectEnabled) {
+        headingAssignments.clear();
+        showToast('🤖 Auto Detect Headings enabled — analyzing structure…', 'info');
+    } else {
+        showToast('🔧 Manual heading mode activated.', 'info');
+    }
+    scheduleUpdate();
+});
 
-Key Structural Milestones
-This tool enables writers to review text justifications automatically without breaking accuracy metrics or changing structural semantic layout words configurations. 
+// Paste button
+pasteBtn.addEventListener('click', async () => {
+    try {
+        if (navigator.clipboard && navigator.clipboard.readText) {
+            const pasted = await navigator.clipboard.readText();
+            if (pasted) {
+                textInput.value = pasted;
+                scheduleUpdate();
+                showToast('📋 Text pasted successfully!', 'success');
+                return;
+            }
+        }
+    } catch (e) {
+        // Fallback
+    }
+    // Fallback: focus and let user paste
+    textInput.focus();
+    showToast('📋 Please use Ctrl+V / Cmd+V to paste into the editor.', 'info');
+});
 
-Advanced Workflow Integrations
-By tracking character string breaks on lines array contexts, real-time transformations compile instantly directly inside the right display preview canvas element safely. Attempt resizing the preview screen frame target windows down to inspect mobile breakpoint responsive behaviors layouts dynamically.`;
-        processContent();
-    };
+// Clear button
+clearBtn.addEventListener('click', () => {
+    if (textInput.value.trim() && !confirm('Are you sure you want to clear all text? This cannot be undone.')) {
+        return;
+    }
+    textInput.value = '';
+    headingAssignments.clear();
+    if (autoDetectEnabled) {
+        autoDetectEnabled = false;
+        autoDetectToggle.checked = false;
+        updateAutoDetectUI();
+    }
+    scheduleUpdate();
+    showToast('🗑️ All content cleared.', 'info');
+});
+
+// Copy HTML button
+copyHtmlBtn.addEventListener('click', async () => {
+    const text = textInput.value;
+    if (!text.trim()) {
+        showToast('⚠️ Nothing to copy. Please add some text first.', 'info');
+        return;
+    }
+    const headings = getCurrentHeadings();
+    const fullHTML = generateOutputHTML(text, headings, currentAlignment, preserveLineBreaks);
+    const bodyHTML = buildPreviewHTML(text, headings, currentAlignment, preserveLineBreaks);
+    const success = await copyToClipboard(text, fullHTML);
+    if (success) {
+        showToast('✅ Formatted HTML copied to clipboard!', 'success');
+    } else {
+        showToast('❌ Failed to copy. Please try again.', 'info');
+    }
+});
+
+// Copy Plain Text button
+copyPlainBtn.addEventListener('click', async () => {
+    const text = textInput.value;
+    if (!text.trim()) {
+        showToast('⚠️ Nothing to copy. Please add some text first.', 'info');
+        return;
+    }
+    const success = await copyToClipboard(text);
+    if (success) {
+        showToast('✅ Plain text copied to clipboard!', 'success');
+    } else {
+        showToast('❌ Failed to copy. Please try again.', 'info');
+    }
+});
+
+// Download TXT
+downloadTxtBtn.addEventListener('click', () => {
+    const text = textInput.value;
+    if (!text.trim()) {
+        showToast('⚠️ Nothing to download. Please add some text first.', 'info');
+        return;
+    }
+    const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+    downloadFile(text, `formatted-content-${timestamp}.txt`, 'text/plain;charset=utf-8');
+    showToast('📄 Downloaded as .TXT file!', 'success');
+});
+
+// Download HTML
+downloadHtmlBtn.addEventListener('click', () => {
+    const text = textInput.value;
+    if (!text.trim()) {
+        showToast('⚠️ Nothing to download. Please add some text first.', 'info');
+        return;
+    }
+    const headings = getCurrentHeadings();
+    const fullHTML = generateOutputHTML(text, headings, currentAlignment, preserveLineBreaks);
+    const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+    downloadFile(fullHTML, `formatted-content-${timestamp}.html`, 'text/html;charset=utf-8');
+    showToast('📄 Downloaded as .HTML file!', 'success');
+});
+
+// Feature cards
+featureAutoHeading.addEventListener('click', () => {
+    autoDetectEnabled = !autoDetectEnabled;
+    autoDetectToggle.checked = autoDetectEnabled;
+    updateAutoDetectUI();
+    if (autoDetectEnabled) {
+        headingAssignments.clear();
+        showToast('🤖 Auto Detect Headings enabled!', 'info');
+    } else {
+        showToast('🔧 Auto Detect Headings disabled.', 'info');
+    }
+    scheduleUpdate();
+});
+
+featurePreserveBreaks.addEventListener('click', () => {
+    preserveLineBreaks = !preserveLineBreaks;
+    updatePreserveBreaksUI();
+    showToast(preserveLineBreaks ? '📏 Line breaks preserved.' : '📏 Line breaks collapsed (standard HTML mode).',
+        'info');
+    scheduleUpdate();
+});
+
+featureCopyHtml.addEventListener('click', async () => {
+    const text = textInput.value;
+    if (!text.trim()) {
+        showToast('⚠️ Nothing to copy. Please add some text first.', 'info');
+        return;
+    }
+    const headings = getCurrentHeadings();
+    const fullHTML = generateOutputHTML(text, headings, currentAlignment, preserveLineBreaks);
+    const success = await copyToClipboard(text, fullHTML);
+    if (success) {
+        showToast('✅ Formatted HTML copied!', 'success');
+    } else {
+        showToast('❌ Copy failed. Try the Copy HTML button above.', 'info');
+    }
+});
+
+featureDownloadAll.addEventListener('click', () => {
+    const text = textInput.value;
+    if (!text.trim()) {
+        showToast('⚠️ Nothing to download. Please add some text first.', 'info');
+        return;
+    }
+    const headings = getCurrentHeadings();
+    const fullHTML = generateOutputHTML(text, headings, currentAlignment, preserveLineBreaks);
+    const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+    downloadFile(text, `content-${timestamp}.txt`, 'text/plain;charset=utf-8');
+    setTimeout(() => {
+        downloadFile(fullHTML, `content-${timestamp}.html`, 'text/html;charset=utf-8');
+    }, 200);
+    showToast('📦 Both .TXT and .HTML files downloaded!', 'success');
+});
+
+// Keyboard shortcut for feature cards
+featureAutoHeading.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        featureAutoHeading.click();
+    }
+});
+featurePreserveBreaks.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        featurePreserveBreaks.click();
+    }
+});
+featureCopyHtml.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        featureCopyHtml.click();
+    }
+});
+featureDownloadAll.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        featureDownloadAll.click();
+    }
+});
+
+// Global keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    // Ctrl+Shift+1/2/3/4 for heading levels
+    if (e.ctrlKey && e.shiftKey && ['1', '2', '3', '4'].includes(e.key)) {
+        e.preventDefault();
+        const level = parseInt(e.key, 10);
+        const lineIndex = getCurrentLineIndex();
+        if (lineIndex >= 0) {
+            setHeadingForLine(lineIndex, level);
+            const labels = { 1: 'H1', 2: 'H2', 3: 'H3', 4: 'H4' };
+            showToast('✅ Line set as ' + labels[level] + ' (Ctrl+Shift+' + level + ')', 'success');
+        }
+    }
+    // Ctrl+Shift+A for auto-detect toggle
+    if (e.ctrlKey && e.shiftKey && e.key === 'A') {
+        e.preventDefault();
+        autoDetectEnabled = !autoDetectEnabled;
+        autoDetectToggle.checked = autoDetectEnabled;
+        updateAutoDetectUI();
+        if (autoDetectEnabled) {
+            headingAssignments.clear();
+            showToast('🤖 Auto Detect toggled ON', 'info');
+        } else {
+            showToast('🔧 Auto Detect toggled OFF', 'info');
+        }
+        scheduleUpdate();
+    }
+});
+
+// ─────────────────────────────────────
+// Initialize
+// ─────────────────────────────────────
+function initialize() {
+    // Set initial alignment button state
+    const defaultAlignBtn = document.querySelector('.align-btn[data-align="justify"]');
+    if (defaultAlignBtn) {
+        defaultAlignBtn.classList.add('active');
+        defaultAlignBtn.setAttribute('aria-checked', 'true');
+    }
+    currentAlignment = 'justify';
+    previewContent.style.textAlign = 'justify';
+
+    // Initialize UI states
+    updateAutoDetectUI();
+    updatePreserveBreaksUI();
+    autoDetectToggle.checked = false;
+    autoDetectEnabled = false;
+    preserveLineBreaks = true;
+
+    // Initial preview
+    updatePreview();
+
+    // Load sample content for demo
+    const sampleText = `The Ultimate Guide to Content Formatting
+
+Introduction
+This comprehensive guide walks you through the art of formatting digital content. Whether you're a blogger, content marketer, or developer, proper formatting makes your text more readable and engaging.
+
+Why Formatting Matters
+Good formatting is not just about aesthetics. It directly impacts how readers consume and retain information. Studies show that well-formatted content receives 58% more engagement than plain text blocks.
+
+Key Principles
+There are several fundamental principles to keep in mind. First, always use clear heading hierarchies to guide readers through your content. Second, maintain consistent alignment throughout your document. Third, preserve appropriate white space between sections.
+
+Getting Started with Headings
+Headings act as signposts for your readers. They break down complex topics into digestible sections. A clear H1 title grabs attention, while H2 and H3 subheadings create a logical flow that readers can easily follow.
+
+Alignment Best Practices
+Justified text creates clean, professional-looking edges on both sides. Left alignment offers a familiar reading pattern for most Western audiences. Center alignment works well for titles and short announcements. Right alignment is useful for specific design contexts like captions.
+
+Advanced Techniques
+For longer documents, consider using a mix of heading levels. H1 for your main title, H2 for major sections, H3 for subsections, and H4 for minor points within subsections. This creates a clear content hierarchy that search engines also appreciate.
+
+Conclusion
+Mastering content formatting takes practice, but the results are worth the effort. Use this tool to experiment with different alignments and heading structures until you find what works best for your content.`;
+    textInput.value = sampleText;
+    scheduleUpdate();
+
+    // Focus textarea
+    textInput.focus();
+}
+
+// ─────────────────────────────────────
+// Start the app
+// ─────────────────────────────────────
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initialize);
+} else {
+    initialize();
+}
+
+// ─────────────────────────────────────
+// Handle window resize for responsive adjustments
+// ─────────────────────────────────────
+let resizeDebounce;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeDebounce);
+    resizeDebounce = setTimeout(() => {
+        // Re-apply alignment to preview (ensures consistency)
+        previewContent.style.textAlign = currentAlignment;
+    }, 150);
+});
+
+console.log('%c📝 Text Justifier & Content Formatter Tool %cReady',
+    'font-size:1.1rem;font-weight:bold;color:#e91e63;',
+    'font-size:0.9rem;color:#555;');
+console.log('%cFeatures: Justify | Left | Center | Right | H1-H4 Headings | Auto Detect | Copy HTML | Download TXT/HTML',
+    'font-size:0.75rem;color:#888;');
+console.log('%cKeyboard shortcuts: Ctrl+Shift+1-4 for headings | Ctrl+Shift+A for Auto Detect',
+    'font-size:0.7rem;color:#aaa;');
+})();
 </script>
 </body>
 </html>
