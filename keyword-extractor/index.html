@@ -1,0 +1,1628 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8"></meta>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"></meta>
+    <title>ðŸ”‘ Advanced Keyword Extractor Tool</title>
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --surface-alt: #f1f5f9;
+            --text: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --accent1: #f59e0b;
+            --accent2: #10b981;
+            --accent3: #ef4444;
+            --accent4: #8b5cf6;
+            --accent5: #06b6d4;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.08), 0 4px 10px -4px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 40px -5px rgba(0, 0, 0, 0.1), 0 8px 16px -6px rgba(0, 0, 0, 0.06);
+            --radius-sm: 8px;
+            --radius: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            --font-mono: 'SF Mono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #e0e7ff 0%, #f0e6ff 25%, #fce7f3 50%, #e0f2fe 75%, #d1fae5 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: var(--text);
+            padding: 16px;
+            line-height: 1.6;
+        }
+
+        /* Decorative background blobs */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -15%;
+            left: -10%;
+            width: 50vw;
+            height: 50vw;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            animation: floatBlob1 20s ease-in-out infinite;
+        }
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -15%;
+            right: -10%;
+            width: 45vw;
+            height: 45vw;
+            background: radial-gradient(circle, rgba(245, 158, 11, 0.07) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            animation: floatBlob2 18s ease-in-out infinite;
+        }
+        @keyframes floatBlob1 {
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+            33% {
+                transform: translate(30px, -40px) scale(1.1);
+            }
+            66% {
+                transform: translate(-20px, 20px) scale(0.9);
+            }
+        }
+        @keyframes floatBlob2 {
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+            33% {
+                transform: translate(-30px, 30px) scale(1.08);
+            }
+            66% {
+                transform: translate(20px, -25px) scale(0.92);
+            }
+        }
+
+        .main-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 28px;
+            position: relative;
+        }
+        .header .icon-row {
+            font-size: 52px;
+            margin-bottom: 6px;
+            animation: bounceIcon 2s ease-in-out infinite;
+            display: inline-block;
+        }
+        @keyframes bounceIcon {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-12px);
+            }
+        }
+        .header h1 {
+            font-size: 2.4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed, #db2777);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+            margin: 0 0 4px;
+        }
+        .header .subtitle {
+            font-size: 0.95rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        /* Card */
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: 24px 28px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: #374151;
+        }
+        .card-header .ico {
+            font-size: 1.4rem;
+        }
+
+        /* Tabs */
+        .tab-nav {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 16px;
+            background: var(--surface-alt);
+            border-radius: var(--radius);
+            padding: 4px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            flex: 1;
+            min-width: 100px;
+            padding: 10px 18px;
+            border: none;
+            background: transparent;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #64748b;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+        .tab-btn.active {
+            background: #fff;
+            color: var(--primary);
+            box-shadow: var(--shadow-sm);
+        }
+        .tab-btn:hover:not(.active) {
+            color: #374151;
+            background: rgba(255, 255, 255, 0.5);
+        }
+        .tab-panel {
+            display: none;
+        }
+        .tab-panel.active {
+            display: block;
+            animation: fadeSlideIn 0.3s ease;
+        }
+        @keyframes fadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Textarea & Input */
+        textarea,
+        input[type="url"] {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+            font-family: inherit;
+            resize: vertical;
+            transition: var(--transition);
+            background: #fafbfc;
+            color: #1e293b;
+            line-height: 1.5;
+        }
+        textarea:focus,
+        input[type="url"]:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.08);
+            background: #fff;
+        }
+        textarea {
+            min-height: 200px;
+            max-height: 500px;
+        }
+        input[type="url"] {
+            padding: 14px 16px;
+        }
+        .input-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #475569;
+            margin-bottom: 6px;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        /* Buttons */
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 14px;
+        }
+        .btn {
+            padding: 11px 22px;
+            border: none;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            letter-spacing: 0.01em;
+            white-space: nowrap;
+        }
+        .btn:active {
+            transform: scale(0.96);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #7c3aed);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+        }
+        .btn-primary:hover {
+            box-shadow: 0 6px 22px rgba(99, 102, 241, 0.5);
+            transform: translateY(-1px);
+        }
+        .btn-secondary {
+            background: #fff;
+            color: #374151;
+            border: 2px solid #e2e8f0;
+        }
+        .btn-secondary:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+        .btn-accent {
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+        }
+        .btn-accent:hover {
+            box-shadow: 0 6px 22px rgba(245, 158, 11, 0.45);
+            transform: translateY(-1px);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+        }
+        .btn-sm {
+            padding: 7px 14px;
+            font-size: 0.8rem;
+            border-radius: var(--radius-sm);
+        }
+
+        /* Settings */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        .setting-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .setting-item label {
+            font-weight: 600;
+            font-size: 0.78rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .setting-item select,
+        .setting-item input[type="number"] {
+            padding: 9px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: var(--radius-sm);
+            font-size: 0.88rem;
+            font-family: inherit;
+            background: #fafbfc;
+            transition: var(--transition);
+            color: #1e293b;
+        }
+        .setting-item select:focus,
+        .setting-item input[type="number"]:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.06);
+        }
+        .setting-item input[type="number"] {
+            width: 100%;
+            max-width: 120px;
+        }
+
+        /* Stats Cards */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .stat-card {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            border: 2px solid transparent;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        .stat-card .stat-num {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1;
+        }
+        .stat-card .stat-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #64748b;
+            margin-top: 4px;
+        }
+        .stat-card.c1 {
+            border-color: #e0e7ff;
+            background: #fafafe;
+        }
+        .stat-card.c1 .stat-num {
+            color: #6366f1;
+        }
+        .stat-card.c2 {
+            border-color: #fef3c7;
+            background: #fffdf7;
+        }
+        .stat-card.c2 .stat-num {
+            color: #f59e0b;
+        }
+        .stat-card.c3 {
+            border-color: #d1fae5;
+            background: #f9fdfb;
+        }
+        .stat-card.c3 .stat-num {
+            color: #10b981;
+        }
+        .stat-card.c4 {
+            border-color: #fce7f3;
+            background: #fefafc;
+        }
+        .stat-card.c4 .stat-num {
+            color: #db2777;
+        }
+        .stat-card.c5 {
+            border-color: #cffafe;
+            background: #f9fdfe;
+        }
+        .stat-card.c5 .stat-num {
+            color: #06b6d4;
+        }
+
+        /* Results Table */
+        .table-wrap {
+            overflow-x: auto;
+            border-radius: var(--radius);
+            border: 1px solid #e2e8f0;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            min-width: 500px;
+        }
+        table thead {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+        table thead th {
+            background: #f8fafc;
+            font-weight: 700;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            color: #475569;
+            padding: 12px 14px;
+            border-bottom: 2px solid #e2e8f0;
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+            transition: var(--transition);
+        }
+        table thead th:hover {
+            background: #eef2ff;
+            color: #4f46e5;
+        }
+        table thead th .sort-arrow {
+            margin-left: 4px;
+            font-size: 0.7rem;
+            opacity: 0.5;
+        }
+        table thead th.sorted .sort-arrow {
+            opacity: 1;
+            color: #4f46e5;
+        }
+        table tbody td {
+            padding: 10px 14px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+        table tbody tr {
+            transition: var(--transition);
+        }
+        table tbody tr:hover {
+            background: #fafaff;
+        }
+        table tbody tr:nth-child(even) {
+            background: #fdfdfe;
+        }
+        table tbody tr:nth-child(even):hover {
+            background: #fafaff;
+        }
+        .keyword-cell {
+            font-weight: 600;
+            color: #374151;
+        }
+        .freq-bar-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .freq-bar {
+            height: 8px;
+            border-radius: 10px;
+            min-width: 4px;
+            transition: width 0.5s ease;
+            background: linear-gradient(90deg, #6366f1, #a78bfa);
+        }
+        .freq-num {
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #4f46e5;
+            min-width: 28px;
+        }
+        .density-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            background: #eef2ff;
+            color: #4f46e5;
+        }
+
+        /* Keyword Cloud */
+        .cloud-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            padding: 16px 0;
+            min-height: 60px;
+        }
+        .cloud-tag {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            background: #eef2ff;
+            color: #4f46e5;
+            white-space: nowrap;
+        }
+        .cloud-tag:hover {
+            transform: scale(1.08);
+            box-shadow: var(--shadow);
+        }
+        .cloud-tag.c0 {
+            background: #e0e7ff;
+            color: #4338ca;
+            font-size: 0.75rem;
+        }
+        .cloud-tag.c1 {
+            background: #fef3c7;
+            color: #b45309;
+            font-size: 0.85rem;
+        }
+        .cloud-tag.c2 {
+            background: #d1fae5;
+            color: #047857;
+            font-size: 0.95rem;
+        }
+        .cloud-tag.c3 {
+            background: #fce7f3;
+            color: #be185d;
+            font-size: 1.05rem;
+        }
+        .cloud-tag.c4 {
+            background: #cffafe;
+            color: #0e7490;
+            font-size: 1.15rem;
+        }
+        .cloud-tag.c5 {
+            background: #ede9fe;
+            color: #6d28d9;
+            font-size: 1.3rem;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1e293b;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            z-index: 1000;
+            pointer-events: none;
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* Loading */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.7);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(3px);
+        }
+        .loading-overlay.show {
+            display: flex;
+        }
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #e2e8f0;
+            border-top-color: #6366f1;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.6rem;
+            }
+            .card {
+                padding: 16px 14px;
+            }
+            .btn-row {
+                flex-direction: column;
+            }
+            .btn {
+                justify-content: center;
+                width: 100%;
+            }
+            .settings-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .stats-row {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+            .stat-card {
+                padding: 12px 10px;
+            }
+            .stat-card .stat-num {
+                font-size: 1.4rem;
+            }
+            table {
+                font-size: 0.78rem;
+            }
+            table thead th,
+            table tbody td {
+                padding: 8px 6px;
+            }
+            .tab-nav {
+                flex-direction: column;
+                gap: 2px;
+            }
+            .tab-btn {
+                text-align: center;
+            }
+        }
+        @media (max-width: 420px) {
+            .stats-row {
+                grid-template-columns: 1fr;
+            }
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+        .highlight-box {
+            background: #fefce8;
+            border: 2px dashed #fde68a;
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            font-size: 0.85rem;
+            color: #92400e;
+            margin-top: 8px;
+            display: none;
+        }
+        .highlight-box.show {
+            display: block;
+        }
+      @media (max-width: 768px) {
+    .stats-row {
+        grid-template-columns: 1fr !important;
+    }
+}
+    </style>
+</head>
+<script>
+(function() {
+  // à¤ªà¤•à¥à¤•à¤¾ à¤‡à¤‚à¤œà¥‡à¤•à¥à¤¶à¤¨ â€” à¤ªà¥‡à¤œ à¤²à¥‹à¤¡ à¤¹à¥‹à¤¨à¥‡ à¤•à¥‡ 100ms à¤¬à¤¾à¤¦ à¤šà¤²à¥‡à¤—à¤¾
+  function injectFixCSS() {
+    var style = document.createElement('style');
+    style.textContent = 
+      '@media (max-width: 900px) {' +
+      '  .stats-row {' +
+      '    display: flex !important;' +
+      '    flex-direction: column !important;' +
+      '    gap: 8px !important;' +
+      '  }' +
+      '  .stat-card {' +
+      '    max-width: 100% !important;' +
+      '    width: 100% !important;' +
+      '  }' +
+      '}';
+    document.head.appendChild(style);
+  }
+
+  // DOM à¤¤à¥ˆà¤¯à¤¾à¤° à¤¹à¥‹à¤¨à¥‡ à¤ªà¤° à¤šà¤²à¤¾à¤à¤
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(injectFixCSS, 100);
+    });
+  } else {
+    setTimeout(injectFixCSS, 100);
+  }
+
+  // à¤¸à¤¾à¤¥ à¤¹à¥€ resize à¤ªà¤° à¤­à¥€ à¤•à¥‹à¤ˆ à¤—à¤¡à¤¼à¤¬à¤¡à¤¼ à¤¨ à¤¹à¥‹ à¤‡à¤¸à¤²à¤¿à¤ backup JS
+  window.addEventListener('resize', function() {
+    var statsRow = document.querySelector('.stats-row');
+    if (statsRow && window.innerWidth <= 900) {
+      statsRow.style.display = 'flex';
+      statsRow.style.flexDirection = 'column';
+      statsRow.style.gap = '8px';
+    }
+  });
+})();
+</script>
+<body>
+
+
+    <div class="main-container">
+        <!-- Header -->
+        <div class="header">
+            <span class="icon-row">ðŸ”‘</span>
+            <h1>Advanced Keyword Extractor</h1>
+            <p class="subtitle">Extract powerful keywords from any text or URL â€” Fast, Accurate &amp; Colorful</p>
+        </div>
+
+        <!-- Input Card -->
+        <div class="card" id="inputCard">
+            <div class="card-header"><span class="ico">ðŸ“</span> Input Source</div>
+            <div class="tab-nav">
+                <button class="tab-btn active" data-tab="text-tab">ðŸ“„ Paste Text</button>
+                <button class="tab-btn" data-tab="url-tab">ðŸŒ Fetch from URL</button>
+            </div>
+            <div class="tab-panel active" id="text-tab">
+                <label class="input-label">Paste your content below</label>
+                <textarea id="textInput" placeholder="Paste your article, blog post, or any text here to extract keywords..."></textarea>
+            </div>
+            <div class="tab-panel" id="url-tab">
+                <label class="input-label">Enter a webpage URL to extract text &amp; keywords</label>
+                <input id="urlInput" placeholder="https://example.com/blog-post" type="url" />
+                <div class="highlight-box" id="urlNote">
+                    âš ï¸ Some websites block cross-origin requests. If fetching fails, try pasting the text directly.
+                </div>
+            </div>
+            <div class="btn-row">
+                <button class="btn btn-primary" id="extractBtn" title="Extract Keywords">ðŸš€ Extract Keywords</button>
+                <button class="btn btn-accent" id="sampleBtn">âœ¨ Load Sample Text</button>
+                <button class="btn btn-secondary" id="clearBtn">ðŸ—‘ï¸ Clear All</button>
+            </div>
+        </div>
+
+        <!-- Settings Card -->
+        <div class="card" id="settingsCard">
+            <div class="card-header"><span class="ico">âš™ï¸</span> Extraction Settings</div>
+            <div class="settings-grid">
+                <div class="setting-item">
+                    <label>Min Word Length</label>
+                    <input id="minWordLen" max="15" min="1" type="number" value="3" />
+                </div>
+                <div class="setting-item">
+                    <label>Min Frequency</label>
+                    <input id="minFreq" max="100" min="1" type="number" value="1" />
+                </div>
+                <div class="setting-item">
+                    <label>Sort By</label>
+                    <select id="sortBy">
+                        <option value="frequency">ðŸ“Š Frequency (High â†’ Low)</option>
+                        <option value="alpha-asc">ðŸ”¤ Alphabetical (A â†’ Z)</option>
+                        <option value="alpha-desc">ðŸ”¤ Alphabetical (Z â†’ A)</option>
+                        <option value="density">ðŸ“ˆ Density % (High â†’ Low)</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label>Extract Mode</label>
+                    <select id="extractMode">
+                        <option value="all">ðŸ” Single + Phrases</option>
+                        <option value="single">ðŸ“Œ Single Words Only</option>
+                        <option value="bigrams">ðŸ”— 2-Word Phrases</option>
+                        <option value="trigrams">ðŸ”— 3-Word Phrases</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label>Case Sensitive</label>
+                    <select id="caseSensitive">
+                        <option value="false">âŒ No (lowercase)</option>
+                        <option value="true">âœ… Yes (preserve case)</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label>Remove Stop Words</label>
+                    <select id="removeStopWords">
+                        <option value="true">âœ… Yes (recommended)</option>
+                        <option value="false">âŒ No (keep all)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="stats-row" id="statsRow" style="display: none;">
+            <div class="stat-card c1">
+                <div class="stat-num" id="statTotalWords">0</div>
+                <div class="stat-label">Total Words</div>
+            </div>
+            <div class="stat-card c2">
+                <div class="stat-num" id="statUniqueKeywords">0</div>
+                <div class="stat-label">Unique Keywords</div>
+            </div>
+            <div class="stat-card c3">
+                <div class="stat-num" id="statTopKeyword">-</div>
+                <div class="stat-label">Top Keyword</div>
+            </div>
+            <div class="stat-card c4">
+                <div class="stat-num" id="statAvgDensity">0%</div>
+                <div class="stat-label">Avg Density</div>
+            </div>
+            <div class="stat-card c5">
+                <div class="stat-num" id="statPhrases">0</div>
+                <div class="stat-label">Phrases Found</div>
+            </div>
+        </div>
+
+        <!-- Results Card -->
+        <div class="card" id="resultsCard" style="display: none;">
+            <div class="card-header">
+                <span class="ico">ðŸ“‹</span> Extracted Keywords
+                <span id="resultCount" style="color: #64748b; font-size: 0.8rem; font-weight: 400;"></span>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th data-sort="keyword">Keyword <span class="sort-arrow">â†•</span></th>
+                            <th data-sort="frequency">Frequency <span class="sort-arrow">â†•</span></th>
+                            <th data-sort="density">Density % <span class="sort-arrow">â†•</span></th>
+                            <th>Visual</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTableBody"></tbody>
+                </table>
+            </div>
+            <div class="no-results" id="noResultsMsg" style="display: none;">ðŸ˜” No keywords found. Try adjusting settings or adding more text.</div>
+            <div class="btn-row" style="margin-top: 16px;">
+                <button class="btn btn-success btn-sm" id="copyCSVBtn">ðŸ“‹ Copy as CSV</button>
+                <button class="btn btn-success btn-sm" id="copyJSONBtn">ðŸ“‹ Copy as JSON</button>
+                <button class="btn btn-secondary btn-sm" id="downloadCSVBtn">ðŸ’¾ Download CSV</button>
+            </div>
+        </div>
+
+        <!-- Keyword Cloud Card -->
+        <div class="card" id="cloudCard" style="display: none;">
+            <div class="card-header"><span class="ico">â˜ï¸</span> Keyword Cloud</div>
+            <div class="cloud-wrap" id="cloudWrap"></div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        (function() {
+            // ==================== DOM ELEMENTS ====================
+            const textInput = document.getElementById('textInput');
+            const urlInput = document.getElementById('urlInput');
+            const extractBtn = document.getElementById('extractBtn');
+            const sampleBtn = document.getElementById('sampleBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const statsRow = document.getElementById('statsRow');
+            const resultsCard = document.getElementById('resultsCard');
+            const cloudCard = document.getElementById('cloudCard');
+            const resultsTableBody = document.getElementById('resultsTableBody');
+            const noResultsMsg = document.getElementById('noResultsMsg');
+            const resultCount = document.getElementById('resultCount');
+            const cloudWrap = document.getElementById('cloudWrap');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const toast = document.getElementById('toast');
+            const urlNote = document.getElementById('urlNote');
+            const copyCSVBtn = document.getElementById('copyCSVBtn');
+            const copyJSONBtn = document.getElementById('copyJSONBtn');
+            const downloadCSVBtn = document.getElementById('downloadCSVBtn');
+
+            // Settings
+            const minWordLenInput = document.getElementById('minWordLen');
+            const minFreqInput = document.getElementById('minFreq');
+            const sortBySelect = document.getElementById('sortBy');
+            const extractModeSelect = document.getElementById('extractMode');
+            const caseSensitiveSelect = document.getElementById('caseSensitive');
+            const removeStopWordsSelect = document.getElementById('removeStopWords');
+
+            // Stats
+            const statTotalWords = document.getElementById('statTotalWords');
+            const statUniqueKeywords = document.getElementById('statUniqueKeywords');
+            const statTopKeyword = document.getElementById('statTopKeyword');
+            const statAvgDensity = document.getElementById('statAvgDensity');
+            const statPhrases = document.getElementById('statPhrases');
+
+            // ==================== STATE ====================
+            let currentKeywords = [];
+            let currentRawText = '';
+            let currentSortCol = 'frequency';
+            let currentSortDir = 'desc';
+
+            // ==================== STOP WORDS ====================
+            const ENGLISH_STOP_WORDS = new Set([
+                'a', 'an', 'the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by',
+                'from', 'as', 'is', 'was', 'are', 'were', 'be', 'been', 'being', 'have', 'has', 'had',
+                'do', 'does', 'did', 'will', 'would', 'could', 'should', 'may', 'might', 'shall', 'can',
+                'need', 'dare', 'ought', 'used', 'it', 'its', 'itself', 'they', 'them', 'their', 'theirs',
+                'themselves', 'he', 'him', 'his', 'himself', 'she', 'her', 'hers', 'herself', 'we', 'us',
+                'our', 'ours', 'ourselves', 'you', 'your', 'yours', 'yourself', 'yourselves', 'i', 'me',
+                'my', 'mine', 'myself', 'this', 'that', 'these', 'those', 'am', 'not', 'no', 'nor',
+                'so', 'if', 'then', 'than', 'too', 'very', 'just', 'about', 'above', 'after', 'again',
+                'against', 'all', 'also', 'any', 'because', 'before', 'between', 'both', 'each', 'few',
+                'more', 'most', 'other', 'some', 'such', 'only', 'own', 'same', 'into', 'over', 'under',
+                'up', 'down', 'out', 'off', 'here', 'there', 'when', 'where', 'why', 'how', 'what',
+                'which', 'who', 'whom', 'while', 'during', 'until', 'though', 'although', 'even',
+                'much', 'many', 'well', 'back', 'still', 'yet', 'already', 'always', 'never', 'often',
+                'sometimes', 'usually', 'really', 'actually', 'almost', 'enough', 'quite', 'rather',
+                'simply', 'mainly', 'mostly', 'particularly', 'especially', 'etc', 'eg', 'ie', 'vs',
+                'via', 'per', 'along', 'around', 'away', 'else', 'ever', 'every', 'far', 'less',
+                'little', 'near', 'next', 'once', 'part', 'perhaps', 'please', 'put', 'say', 'see',
+                'seem', 'since', 'take', 'thing', 'think', 'use', 'using', 'without', 'within',
+                'also', 'ask', 'best', 'better', 'big', 'buy', 'call', 'come', 'couldnt', 'day',
+                'different', 'find', 'first', 'get', 'go', 'good', 'great', 'high', 'interest',
+                'keep', 'know', 'large', 'last', 'let', 'like', 'long', 'look', 'made', 'make',
+                'man', 'men', 'mr', 'mrs', 'ms', 'new', 'now', 'number', 'old', 'one', 'open',
+                'order', 'people', 'place', 'right', 'said', 'set', 'small', 'someone', 'something',
+                'state', 'system', 'tell', 'time', 'two', 'want', 'water', 'way', 'week', 'word',
+                'work', 'world', 'year', 'years', 'going', 'doing', 'having', 'getting', 'looking'
+            ]);
+
+            const HINDI_STOP_WORDS = new Set([
+                'à¤”à¤°', 'à¤¯à¤¾', 'à¤®à¥‡à¤‚', 'à¤•à¤¾', 'à¤•à¥€', 'à¤•à¥‡', 'à¤•à¥‹', 'à¤¸à¥‡', 'à¤ªà¤°', 'à¤¯à¤¹', 'à¤µà¤¹', 'à¤à¤•', 'à¤¤à¥‹', 'à¤¹à¥€',
+                'à¤­à¥€', 'à¤¨à¤¾', 'à¤¨à¥‡', 'à¤¦à¤¿à¤¯à¤¾', 'à¤¹à¥‹', 'à¤•à¤°', 'à¤¹à¥ˆ', 'à¤¹à¥ˆà¤‚', 'à¤¥à¥€', 'à¤¥à¤¾', 'à¤¥à¥‡', 'à¤¹à¥‚à¤‚', 'à¤¹à¥ˆ',
+                'à¤¹à¥‹à¤—à¤¾', 'à¤¹à¥‹à¤—à¥€', 'à¤¹à¥‹à¤‚à¤—à¥‡', 'à¤•à¤¿à¤¯à¤¾', 'à¤•à¤¿à¤', 'à¤¦à¥à¤µà¤¾à¤°à¤¾', 'à¤‡à¤¸', 'à¤‰à¤¸', 'à¤‡à¤¨', 'à¤‰à¤¨', 'à¤œà¥‹',
+                'à¤œà¤¿à¤¸', 'à¤œà¤¿à¤¨', 'à¤œà¤¹à¤¾à¤‚', 'à¤œà¤¬', 'à¤¤à¤•', 'à¤¸à¤¬', 'à¤¸à¤­à¥€', 'à¤•à¥à¤›', 'à¤•à¥‹à¤ˆ', 'à¤…à¤ªà¤¨à¤¾', 'à¤…à¤ªà¤¨à¥€',
+                'à¤…à¤ªà¤¨à¥‡', 'à¤¹à¤®', 'à¤¤à¥à¤®', 'à¤†à¤ª', 'à¤®à¥ˆà¤‚', 'à¤®à¥à¤à¥‡', 'à¤¹à¤®à¥‡à¤‚', 'à¤¤à¥à¤®à¥à¤¹à¥‡à¤‚', 'à¤‰à¤¸à¥‡', 'à¤‰à¤¨à¥à¤¹à¥‡à¤‚',
+                'à¤‡à¤¸à¥‡', 'à¤‡à¤¨à¥à¤¹à¥‡à¤‚', 'à¤•à¥Œà¤¨', 'à¤•à¥à¤¯à¤¾', 'à¤•à¥à¤¯à¥‹à¤‚', 'à¤•à¥ˆà¤¸à¥‡', 'à¤•à¤¬', 'à¤•à¤¹à¤¾à¤‚', 'à¤•à¤¿à¤¤à¤¨à¤¾', 'à¤•à¤¿à¤¤à¤¨à¥‡',
+                'à¤à¤¸à¤¾', 'à¤µà¥ˆà¤¸à¤¾', 'à¤œà¥ˆà¤¸à¤¾', 'à¤¬à¤¹à¥à¤¤', 'à¤…à¤¤à¤¿', 'à¤…à¤§à¤¿à¤•', 'à¤ªà¥‚à¤°à¤¾', 'à¤¸à¤¾à¤¥', 'à¤²à¥‡à¤•à¤¿à¤¨', 'à¤•à¥à¤¯à¥‹à¤‚à¤•à¤¿',
+                'à¤¤à¤¥à¤¾', 'à¤à¤µà¤‚', 'à¤šà¤¾à¤¹à¤¿à¤', 'à¤¸à¤•à¤¤à¤¾', 'à¤¸à¤•à¤¤à¥‡', 'à¤°à¤¹à¤¾', 'à¤°à¤¹à¥‡', 'à¤°à¤¹à¥€', 'à¤¹à¥à¤†', 'à¤¹à¥à¤', 'à¤¹à¥à¤ˆ',
+                'à¤¥à¤¾', 'à¤¥à¥€', 'à¤¥à¥‡', 'à¤¦à¥‚à¤¸à¤°à¤¾', 'à¤¦à¥‚à¤¸à¤°à¥€', 'à¤ªà¤¹à¤²à¤¾', 'à¤ªà¤¹à¤²à¥€', 'à¤¬à¤¾à¤¦', 'à¤ªà¤¹à¤²à¥‡', 'à¤¨à¥€à¤šà¥‡', 'à¤Šà¤ªà¤°',
+                'à¤†à¤—à¥‡', 'à¤ªà¥€à¤›à¥‡', 'à¤…à¤‚à¤¦à¤°', 'à¤¬à¤¾à¤¹à¤°', 'à¤¬à¤¿à¤¨à¤¾', 'à¤¦à¥Œà¤°à¤¾à¤¨', 'à¤…à¤¨à¥à¤¸à¤¾à¤°', 'à¤¬à¤¾à¤°à¥‡', 'à¤²à¤¿à¤', 'à¤µà¤¾à¤²à¤¾',
+                'à¤µà¤¾à¤²à¥€', 'à¤µà¤¾à¤²à¥‡', 'à¤œà¥ˆà¤¸à¥‡', 'à¤µà¥ˆà¤¸à¥‡', 'à¤«à¤¿à¤°', 'à¤…à¤­à¥€', 'à¤¤à¤¬', 'à¤µà¤°à¥à¤¤à¤®à¤¾à¤¨', 'à¤¨à¤¹à¥€à¤‚', 'à¤®à¤¤'
+            ]);
+
+            const ALL_STOP_WORDS = new Set([...ENGLISH_STOP_WORDS, ...HINDI_STOP_WORDS]);
+
+            // ==================== SAMPLE TEXT ====================
+            const SAMPLE_TEXT = `Digital marketing has become one of the most powerful tools for businesses in the modern era. With the rise of social media platforms like Instagram, Facebook, and Twitter, companies can now reach millions of potential customers with just a few clicks. Search engine optimization, commonly known as SEO, plays a crucial role in ensuring that your content ranks high on Google and other search engines. Content marketing, email campaigns, and pay-per-click advertising are all essential components of a successful digital strategy.
+
+        Artificial intelligence is transforming the digital marketing landscape. AI-powered tools can analyze consumer behavior, predict trends, and personalize content for individual users. Machine learning algorithms help marketers understand what type of content resonates best with their target audience. Chatbots and virtual assistants provide instant customer support, improving user experience and engagement rates.
+
+        Blogging remains one of the most effective content marketing strategies for building brand authority. By creating high-quality, informative blog posts, businesses can establish themselves as thought leaders in their industry. A well-optimized blog can drive organic traffic, generate leads, and increase conversions. Keyword research is the foundation of any successful blogging strategy. Understanding what your audience is searching for allows you to create content that addresses their needs and answers their questions.`;
+
+            // ==================== TOAST ====================
+            let toastTimeout;
+
+            function showToast(msg) {
+                clearTimeout(toastTimeout);
+                toast.textContent = msg;
+                toast.classList.add('show');
+                toastTimeout = setTimeout(() => toast.classList.remove('show'), 2500);
+            }
+
+            // ==================== LOADING ====================
+            function showLoading() {
+                loadingOverlay.classList.add('show');
+            }
+
+            function hideLoading() {
+                loadingOverlay.classList.remove('show');
+            }
+
+            // ==================== TAB SWITCHING ====================
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove(
+                        'active'));
+                    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove(
+                        'active'));
+                    btn.classList.add('active');
+                    const targetId = btn.dataset.tab;
+                    document.getElementById(targetId).classList.add('active');
+                    urlNote.classList.remove('show');
+                });
+            });
+
+            // ==================== TEXT CLEANING ====================
+            function cleanText(text) {
+                // Decode HTML entities
+                const txt = document.createElement('textarea');
+                txt.innerHTML = text;
+                let decoded = txt.value;
+                // Remove HTML tags if any remain
+                decoded = decoded.replace(/<[^>]*>/g, ' ');
+                // Normalize whitespace
+                decoded = decoded.replace(/\s+/g, ' ').trim();
+                return decoded;
+            }
+
+            function stripHTML(html) {
+                // Remove script and style elements
+                let cleaned = html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, ' ');
+                cleaned = cleaned.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, ' ');
+                cleaned = cleaned.replace(/<noscript[^>]*>[\s\S]*?<\/noscript>/gi, ' ');
+                // Remove HTML comments
+                cleaned = cleaned.replace(/<!--[\s\S]*?-->/g, ' ');
+                // Remove all HTML tags
+                cleaned = cleaned.replace(/<[^>]*>/g, ' ');
+                // Decode common HTML entities
+                cleaned = cleaned.replace(/&nbsp;/g, ' ');
+                cleaned = cleaned.replace(/&amp;/g, '&');
+                cleaned = cleaned.replace(/&lt;/g, '<');
+                cleaned = cleaned.replace(/&gt;/g, '>');
+                cleaned = cleaned.replace(/&quot;/g, '"');
+                cleaned = cleaned.replace(/&#39;/g, "'");
+                cleaned = cleaned.replace(/&[a-z]+;/gi, ' ');
+                cleaned = cleaned.replace(/&#\d+;/gi, ' ');
+                // Normalize whitespace
+                cleaned = cleaned.replace(/\s+/g, ' ').trim();
+                return cleaned;
+            }
+
+            // ==================== TOKENIZATION ====================
+            function tokenize(text) {
+                // Split by whitespace and punctuation, keep only word characters (including Unicode for Hindi)
+                const tokens = text.split(/[\s,.\-!?;:()\[\]{}"'`~@#$%^&*+=/\\|<>]+/);
+                return tokens.filter(t => t.length > 0);
+            }
+
+            function isStopWord(word, removeSW) {
+                if (!removeSW) return false;
+                return ALL_STOP_WORDS.has(word.toLowerCase());
+            }
+
+            function getWords(text, minLen, caseSensitive, removeSW) {
+                const tokens = tokenize(text);
+                const words = [];
+                for (const token of tokens) {
+                    const w = caseSensitive ? token : token.toLowerCase();
+                    // Remove leading/trailing non-alpha but keep internal hyphens and apostrophes
+                    const cleaned = w.replace(/^[^a-zA-Z\u0900-\u097F\u0900-\u097F]+/, '')
+                        .replace(/[^a-zA-Z\u0900-\u097F]+$/, '');
+                    if (cleaned.length >= minLen && !isStopWord(cleaned, removeSW)) {
+                        words.push(cleaned);
+                    }
+                }
+                return words;
+            }
+
+            function getBigrams(words) {
+                const bigrams = [];
+                for (let i = 0; i < words.length - 1; i++) {
+                    bigrams.push(words[i] + ' ' + words[i + 1]);
+                }
+                return bigrams;
+            }
+
+            function getTrigrams(words) {
+                const trigrams = [];
+                for (let i = 0; i < words.length - 2; i++) {
+                    trigrams.push(words[i] + ' ' + words[i + 1] + ' ' + words[i + 2]);
+                }
+                return trigrams;
+            }
+
+            // ==================== KEYWORD EXTRACTION ====================
+            function extractKeywords(text, options) {
+                const {
+                    minWordLen = 3,
+                    minFreq = 1,
+                    caseSensitive = false,
+                    removeSW = true,
+                    mode = 'all',
+                } = options;
+
+                const totalWordsRaw = tokenize(text).length;
+                const words = getWords(text, minWordLen, caseSensitive, removeSW);
+                const totalMeaningfulWords = words.length;
+
+                // Count single words
+                const wordFreq = {};
+                for (const w of words) {
+                    wordFreq[w] = (wordFreq[w] || 0) + 1;
+                }
+
+                // Count bigrams
+                const bigramFreq = {};
+                const bigrams = getBigrams(words);
+                for (const bg of bigrams) {
+                    bigramFreq[bg] = (bigramFreq[bg] || 0) + 1;
+                }
+
+                // Count trigrams
+                const trigramFreq = {};
+                const trigrams = getTrigrams(words);
+                for (const tg of trigrams) {
+                    trigramFreq[tg] = (trigramFreq[tg] || 0) + 1;
+                }
+
+                // Build results
+                let results = [];
+
+                if (mode === 'single' || mode === 'all') {
+                    for (const [kw, freq] of Object.entries(wordFreq)) {
+                        if (freq >= minFreq) {
+                            results.push({
+                                keyword: kw,
+                                frequency: freq,
+                                density: parseFloat(((freq / totalMeaningfulWords) * 100).toFixed(2)),
+                                type: 'single',
+                            });
+                        }
+                    }
+                }
+
+                if (mode === 'bigrams' || mode === 'all') {
+                    for (const [kw, freq] of Object.entries(bigramFreq)) {
+                        if (freq >= minFreq) {
+                            results.push({
+                                keyword: kw,
+                                frequency: freq,
+                                density: parseFloat(((freq / totalMeaningfulWords) * 100).toFixed(2)),
+                                type: 'bigram',
+                            });
+                        }
+                    }
+                }
+
+                if (mode === 'trigrams' || mode === 'all') {
+                    for (const [kw, freq] of Object.entries(trigramFreq)) {
+                        if (freq >= minFreq) {
+                            results.push({
+                                keyword: kw,
+                                frequency: freq,
+                                density: parseFloat(((freq / totalMeaningfulWords) * 100).toFixed(2)),
+                                type: 'trigram',
+                            });
+                        }
+                    }
+                }
+
+                // Remove duplicates (a word might also appear in bigrams; keep the highest frequency entry)
+                const seen = {};
+                const deduped = [];
+                for (const r of results) {
+                    const key = r.keyword.toLowerCase();
+                    if (!seen[key] || r.frequency > seen[key].frequency) {
+                        if (seen[key]) {
+                            // Replace previous
+                            const idx = deduped.findIndex(d => d.keyword.toLowerCase() === key);
+                            if (idx >= 0) deduped[idx] = r;
+                        } else {
+                            deduped.push(r);
+                        }
+                        seen[key] = r;
+                    }
+                }
+
+                return {
+                    keywords: deduped,
+                    totalWordsRaw,
+                    totalMeaningfulWords,
+                };
+            }
+
+            // ==================== SORTING ====================
+            function sortKeywords(keywords, sortBy, sortDir = 'desc') {
+                const sorted = [...keywords];
+                switch (sortBy) {
+                    case 'frequency':
+                        sorted.sort((a, b) => sortDir === 'desc' ? b.frequency - a.frequency : a.frequency -
+                            b.frequency);
+                        break;
+                    case 'alpha-asc':
+                        sorted.sort((a, b) => a.keyword.localeCompare(b.keyword));
+                        break;
+                    case 'alpha-desc':
+                        sorted.sort((a, b) => b.keyword.localeCompare(a.keyword));
+                        break;
+                    case 'density':
+                        sorted.sort((a, b) => sortDir === 'desc' ? b.density - a.density : a.density - b
+                            .density);
+                        break;
+                    default:
+                        sorted.sort((a, b) => b.frequency - a.frequency);
+                }
+                return sorted;
+            }
+
+            // ==================== RENDER RESULTS ====================
+            function renderResults(keywords, totalWordsRaw, totalMeaningfulWords) {
+                resultsTableBody.innerHTML = '';
+                noResultsMsg.style.display = 'none';
+                cloudWrap.innerHTML = '';
+
+                if (keywords.length === 0) {
+                    noResultsMsg.style.display = 'block';
+                    resultCount.textContent = '(0 results)';
+                    statsRow.style.display = 'flex';
+                    statTotalWords.textContent = totalWordsRaw;
+                    statUniqueKeywords.textContent = '0';
+                    statTopKeyword.textContent = '-';
+                    statAvgDensity.textContent = '0%';
+                    statPhrases.textContent = '0';
+                    resultsCard.style.display = 'block';
+                    cloudCard.style.display = 'none';
+                    return;
+                }
+
+                const maxFreq = keywords[0]?.frequency || 1;
+
+                // Render table
+                keywords.forEach((kw, i) => {
+                    const tr = document.createElement('tr');
+                    const barWidth = Math.max(4, (kw.frequency / maxFreq) * 100);
+                    const typeBadge = kw.type === 'bigram' ? ' ðŸ”—' : kw.type === 'trigram' ? ' â›“ï¸' : '';
+                    tr.innerHTML = `
+                <td class="keyword-cell">${escapeHTML(kw.keyword)}${typeBadge}</td>
+                <td>
+                  <div class="freq-bar-wrap">
+                    <span class="freq-num">${kw.frequency}</span>
+                  </div>
+                </td>
+                <td><span class="density-badge">${kw.density}%</span></td>
+                <td>
+                  <div class="freq-bar-wrap">
+                    <div class="freq-bar" style="width:${barWidth}%; background:${getBarColor(i)};"></div>
+                  </div>
+                </td>
+              `;
+                    resultsTableBody.appendChild(tr);
+                });
+
+                // Render cloud
+                const cloudKeywords = keywords.slice(0, 60);
+                cloudKeywords.forEach((kw, i) => {
+                    const tag = document.createElement('span');
+                    const sizeClass = getCloudSizeClass(kw.frequency, maxFreq);
+                    tag.className = `cloud-tag ${sizeClass}`;
+                    tag.textContent = kw.keyword;
+                    tag.title = `${kw.keyword}: ${kw.frequency} occurrences (${kw.density}%)`;
+                    tag.addEventListener('click', () => {
+                        // Scroll to and highlight in table
+                        const rows = resultsTableBody.querySelectorAll('tr');
+                        rows.forEach(r => r.style.background = '');
+                        if (rows[i]) {
+                            rows[i].style.background = '#fef3c7';
+                            rows[i].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                    });
+                    cloudWrap.appendChild(tag);
+                });
+
+                // Update stats
+                const uniqueSingle = keywords.filter(k => k.type === 'single').length;
+                const phraseCount = keywords.filter(k => k.type === 'bigram' || k.type === 'trigram').length;
+                const avgDensity = keywords.length > 0 ?
+                    parseFloat((keywords.reduce((sum, k) => sum + k.density, 0) / keywords.length).toFixed(2)) :
+                    0;
+                const topKw = keywords[0]?.keyword || '-';
+
+                statTotalWords.textContent = totalWordsRaw;
+                statUniqueKeywords.textContent = uniqueSingle;
+                statTopKeyword.textContent = topKw.length > 20 ? topKw.slice(0, 18) + 'â€¦' : topKw;
+                statAvgDensity.textContent = avgDensity + '%';
+                statPhrases.textContent = phraseCount;
+                resultCount.textContent = `(${keywords.length} results)`;
+
+                statsRow.style.display = 'flex';
+                resultsCard.style.display = 'block';
+                cloudCard.style.display = 'block';
+            }
+
+            function getBarColor(i) {
+                const colors = [
+                    'linear-gradient(90deg, #6366f1, #a78bfa)',
+                    'linear-gradient(90deg, #f59e0b, #fbbf24)',
+                    'linear-gradient(90deg, #10b981, #34d399)',
+                    'linear-gradient(90deg, #ef4444, #f87171)',
+                    'linear-gradient(90deg, #8b5cf6, #c4b5fd)',
+                    'linear-gradient(90deg, #06b6d4, #67e8f9)',
+                    'linear-gradient(90deg, #ec4899, #f9a8d4)',
+                ];
+                return colors[i % colors.length];
+            }
+
+            function getCloudSizeClass(freq, maxFreq) {
+                const ratio = freq / maxFreq;
+                if (ratio >= 0.9) return 'c5';
+                if (ratio >= 0.7) return 'c4';
+                if (ratio >= 0.5) return 'c3';
+                if (ratio >= 0.3) return 'c2';
+                if (ratio >= 0.15) return 'c1';
+                return 'c0';
+            }
+
+            function escapeHTML(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            // ==================== MAIN EXTRACTION ====================
+            function runExtraction(text) {
+                if (!text || text.trim().length < 5) {
+                    showToast('âš ï¸ Please enter more text (at least 5 characters)');
+                    return;
+                }
+
+                const cleaned = cleanText(text);
+                currentRawText = cleaned;
+
+                const options = {
+                    minWordLen: parseInt(minWordLenInput.value) || 3,
+                    minFreq: parseInt(minFreqInput.value) || 1,
+                    caseSensitive: caseSensitiveSelect.value === 'true',
+                    removeSW: removeStopWordsSelect.value === 'true',
+                    mode: extractModeSelect.value || 'all',
+                };
+
+                const result = extractKeywords(cleaned, options);
+                const sortBy = sortBySelect.value;
+                const sorted = sortKeywords(result.keywords, sortBy, currentSortDir);
+                currentKeywords = sorted;
+                currentSortCol = sortBy;
+
+                renderResults(sorted, result.totalWordsRaw, result.totalMeaningfulWords);
+
+                if (sorted.length > 0) {
+                    showToast(`âœ… Extracted ${sorted.length} keywords successfully!`);
+                } else {
+                    showToast('âš ï¸ No keywords found. Try lowering the minimum word length or frequency.');
+                }
+            }
+
+            // ==================== URL FETCH ====================
+         
+                    // ==================== URL FETCH (UPDATED WITH PERMANENT PROXY) ====================
+async function fetchFromURL(url) {
+    // âœ… à¤†à¤ªà¤•à¤¾ Permanent Google Apps Script Proxy (CORS à¤•à¥‹ à¤–à¤¤à¥à¤® à¤•à¤°à¤¨à¥‡ à¤•à¥‡ à¤²à¤¿à¤)
+    const YOUR_PROXY = 'https://script.google.com/macros/s/AKfycbyGDTb4yFrWMRsdmT74aRMC3VpFNw1RHImQKaa2tKPHldeQYsS4zIzqRv5D4eK6IrCB3Q/exec';
+
+    showLoading();
+    urlNote.classList.remove('show');
+    try {
+        // à¤…à¤¬ à¤¯à¤¹ à¤¸à¥€à¤§à¥‡ fetch à¤•à¥€ à¤œà¤—à¤¹ à¤†à¤ªà¤•à¥‡ Proxy à¤¸à¥‡ à¤¡à¥‡à¤Ÿà¤¾ à¤²à¤¾à¤à¤—à¤¾
+        const proxyUrl = YOUR_PROXY + '?url=' + encodeURIComponent(url);
+        const response = await fetch(proxyUrl, {
+            method: 'GET',
+            headers: {
+                'Accept': 'text/html,text/plain,*/*',
+            },
+        });
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        const raw = await response.text();
+        let extractedText;
+        if (raw.trim().startsWith('<!') || raw.trim().startsWith('<')) {
+            extractedText = stripHTML(raw);
+        } else {
+            extractedText = cleanText(raw);
+        }
+        if (extractedText.length < 10) {
+            throw new Error('Extracted text is too short');
+        }
+        textInput.value = extractedText;
+        // Switch to text tab
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        document.querySelector('[data-tab="text-tab"]').classList.add('active');
+        document.getElementById('text-tab').classList.add('active');
+        hideLoading();
+        showToast('âœ… URL content fetched & loaded! Extracting keywords...');
+        runExtraction(extractedText);
+    } catch (err) {
+        hideLoading();
+        console.error('URL fetch error:', err);
+        urlNote.classList.add('show');
+        urlNote.innerHTML = `âš ï¸ <strong>Unable to fetch URL via proxy.</strong> <br><br>ðŸ‘‰ <strong>Workaround:</strong> Open the URL in your browser, copy all the text (Ctrl+A, Ctrl+C), and paste it in the <strong>"Paste Text"</strong> tab above.`;
+        showToast('âŒ Could not fetch URL. Try pasting text directly.');
+    }
+}
+
+            // ==================== EVENT LISTENERS ====================
+            extractBtn.addEventListener('click', () => {
+                const activeTab = document.querySelector('.tab-panel.active');
+                if (activeTab.id === 'url-tab') {
+                    const url = urlInput.value.trim();
+                    if (!url) {
+                        showToast('âš ï¸ Please enter a valid URL');
+                        return;
+                    }
+                    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                        showToast('âš ï¸ URL must start with http:// or https://');
+                        return;
+                    }
+                    fetchFromURL(url);
+                } else {
+                    const text = textInput.value.trim();
+                    if (!text || text.length < 5) {
+                        showToast('âš ï¸ Please enter at least 5 characters of text');
+                        return;
+                    }
+                    runExtraction(text);
+                }
+            });
+
+            sampleBtn.addEventListener('click', () => {
+                textInput.value = SAMPLE_TEXT;
+                // Switch to text tab
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                document.querySelector('[data-tab="text-tab"]').classList.add('active');
+                document.getElementById('text-tab').classList.add('active');
+                showToast('âœ¨ Sample text loaded! Click "Extract Keywords" to see results.');
+                // Auto extract
+                setTimeout(() => runExtraction(SAMPLE_TEXT), 300);
+            });
+
+            clearBtn.addEventListener('click', () => {
+                textInput.value = '';
+                urlInput.value = '';
+                currentKeywords = [];
+                currentRawText = '';
+                resultsTableBody.innerHTML = '';
+                cloudWrap.innerHTML = '';
+                statsRow.style.display = 'none';
+                resultsCard.style.display = 'none';
+                cloudCard.style.display = 'none';
+                noResultsMsg.style.display = 'none';
+                urlNote.classList.remove('show');
+                showToast('ðŸ—‘ï¸ All cleared!');
+            });
+
+            // Table header sorting
+            document.querySelector('table thead').addEventListener('click', (e) => {
+                const th = e.target.closest('th');
+                if (!th) return;
+                const sortCol = th.dataset.sort;
+                if (!sortCol) return;
+
+                // Remove sorted class from all
+                document.querySelectorAll('table thead th').forEach(h => h.classList.remove(
+                'sorted'));
+                th.classList.add('sorted');
+
+                if (currentSortCol === sortCol) {
+                    currentSortDir = currentSortDir === 'desc' ? 'asc' : 'desc';
+                } else {
+                    currentSortCol = sortCol;
+                    currentSortDir = 'desc';
+                }
+
+                // Map table sort to sortBy value
+                let sortByVal = sortCol;
+                if (sortCol === 'keyword') sortByVal = currentSortDir === 'desc' ? 'alpha-desc' : 'alpha-asc';
+                if (sortCol === 'density') sortByVal = 'density';
+                if (sortCol === 'frequency') sortByVal = 'frequency';
+
+                sortBySelect.value = sortByVal;
+                const sorted = sortKeywords(currentKeywords, sortByVal, currentSortDir);
+                currentKeywords = sorted;
+                const totalWordsRaw = currentRawText ? tokenize(cleanText(currentRawText)).length : 0;
+                const meaningful = currentRawText ? getWords(cleanText(currentRawText),
+                    parseInt(minWordLenInput.value) || 3,
+                    caseSensitiveSelect.value === 'true',
+                    removeStopWordsSelect.value === 'true'
+                ).length : 0;
+                renderResults(sorted, totalWordsRaw, meaningful);
+            });
+
+            // Settings change - re-extract if we have data
+            const settingsInputs = [minWordLenInput, minFreqInput, sortBySelect, extractModeSelect,
+                caseSensitiveSelect, removeStopWordsSelect
+            ];
+            settingsInputs.forEach(input => {
+                input.addEventListener('change', () => {
+                    if (currentRawText && currentRawText.trim().length >= 5) {
+                        const options = {
+                            minWordLen: parseInt(minWordLenInput.value) || 3,
+                            minFreq: parseInt(minFreqInput.value) || 1,
+                            caseSensitive: caseSensitiveSelect.value === 'true',
+                            removeSW: removeStopWordsSelect.value === 'true',
+                            mode: extractModeSelect.value || 'all',
+                        };
+                        const result = extractKeywords(currentRawText, options);
+                        const sortBy = sortBySelect.value;
+                        currentSortCol = sortBy;
+                        currentSortDir = 'desc';
+                        const sorted = sortKeywords(result.keywords, sortBy, currentSortDir);
+                        currentKeywords = sorted;
+                        renderResults(sorted, result.totalWordsRaw, result.totalMeaningfulWords);
+                    }
+                });
+            });
+
+            // Copy CSV
+            copyCSVBtn.addEventListener('click', () => {
+                if (currentKeywords.length === 0) {
+                    showToast('âš ï¸ No keywords to copy');
+                    return;
+                }
+                let csv = 'Keyword,Frequency,Density (%)\n';
+                currentKeywords.forEach(k => {
+                    csv += `"${k.keyword.replace(/"/g, '""')}",${k.frequency},${k.density}\n`;
+                });
+                navigator.clipboard.writeText(csv).then(() => {
+                    showToast('ðŸ“‹ CSV copied to clipboard!');
+                }).catch(() => showToast('âŒ Failed to copy'));
+            });
+
+            // Copy JSON
+            copyJSONBtn.addEventListener('click', () => {
+                if (currentKeywords.length === 0) {
+                    showToast('âš ï¸ No keywords to copy');
+                    return;
+                }
+                const json = JSON.stringify(currentKeywords, null, 2);
+                navigator.clipboard.writeText(json).then(() => {
+                    showToast('ðŸ“‹ JSON copied to clipboard!');
+                }).catch(() => showToast('âŒ Failed to copy'));
+            });
+
+            // Download CSV
+            downloadCSVBtn.addEventListener('click', () => {
+                if (currentKeywords.length === 0) {
+                    showToast('âš ï¸ No keywords to download');
+                    return;
+                }
+                let csv = 'Keyword,Frequency,Density (%)\n';
+                currentKeywords.forEach(k => {
+                    csv += `"${k.keyword.replace(/"/g, '""')}",${k.frequency},${k.density}\n`;
+                });
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'keywords_extracted.csv';
+                a.click();
+                URL.revokeObjectURL(url);
+                showToast('ðŸ’¾ CSV downloaded!');
+            });
+
+            // Keyboard shortcut
+            document.addEventListener('keydown', (e) => {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    extractBtn.click();
+                }
+            });
+
+            // ==================== INITIAL STATE ====================
+            statsRow.style.display = 'none';
+            resultsCard.style.display = 'none';
+            cloudCard.style.display = 'none';
+
+            console.log('ðŸ”‘ Advanced Keyword Extractor Tool Ready!');
+            console.log('   âœ… Supports: Single words, Bigrams, Trigrams');
+            console.log('   âœ… Stop words: English + Hindi');
+            console.log('   âœ… Export: CSV, JSON, Clipboard');
+            console.log('   âœ… URL text extraction with HTML stripping');
+            console.log('   ðŸ’¡ Tip: Press Ctrl+Enter to extract quickly!');
+        })();
+    </script>
+</body>
+</html>
